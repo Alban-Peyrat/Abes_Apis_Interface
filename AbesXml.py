@@ -7,7 +7,9 @@ import xml.etree.ElementTree as ET
 from mail import mail
 from logs import logs
 
-"""
+
+class AbesXml(object):
+    """
     AbesXml
     =======
     A set of function wich handle data returned by service 'Sudoc in Xml' 
@@ -15,9 +17,6 @@ from logs import logs
     On init take a PPN (sudoc identifier) in argument
     ex : https://www.sudoc.fr/178565946.xml   
 """
-
-
-class AbesXml(object):
 
     def __init__(self,ppn,service='AbesXml'):
         self.endpoint = "https://www.sudoc.fr"
@@ -30,7 +29,9 @@ class AbesXml(object):
             r.raise_for_status()  
         except requests.exceptions.HTTPError:
             raise HTTPError(r,self.service)
+            self.status = 'Error'
         self.record = r.content.decode('utf-8')
+        self.status = 'Succes'
 
     @property
     
@@ -53,7 +54,7 @@ class AbesXml(object):
         Returns:
             list -- a list of text holdings
         """
-        root = ET.fromstring(self.notice)
+        root = ET.fromstring(self.record)
         textual_holdings = []
         for field in root.findall(".//datafield[@tag='955']"):
             item = field.find("subfield[@code='5']").text
