@@ -1,4 +1,5 @@
 import os
+import re
 # external imports
 import requests
 import logging
@@ -19,19 +20,27 @@ class AbesXml(object):
 """
 
     def __init__(self,ppn,service='AbesXml'):
+        self.logger = logging.getLogger(service)
         self.endpoint = "https://www.sudoc.fr"
         self.service = service
-        self.logger = logging.getLogger(service)
         self.ppn = ppn
-        url =  '{}/{}.xml'.format(self.endpoint, self.ppn)
-        r = requests.get(url)
-        try:
-            r.raise_for_status()  
-        except requests.exceptions.HTTPError:
-            raise HTTPError(r,self.service)
-            self.status = 'Error'
-        self.record = r.content.decode('utf-8')
-        self.status = 'Succes'
+        if not(re.search("^\d{8}[\dxX]$", ppn)):
+            self.status = "Error"
+            self.logger.error("{} :: XmlAbes_Init :: PPN invalide".format(ppn))
+            self.error_msg = "PPN invalide"
+        else:
+            url =  '{}/{}.xml'.format(self.endpoint, self.ppn)
+            r = requests.get(url)
+            try:
+                r.raise_for_status()  
+            except requests.exceptions.HTTPError:
+                self.status = 'Error'
+                self.logger.error("{} :: XmlAbes_Init :: HTTP Status: {} || Method: {} || URL: {} || Response: {}".format(ppn, r.status_code, r.request.method, r.url, r.text))
+                self.error_msg = "PPN inconnu ou service indisponible"
+            else:
+                self.record = r.content.decode('utf-8')
+                self.status = 'Succes'
+                self.logger.debug("{} :: AbesXml :: Object créé avec succes".format(ppn))
 
     @property
     
@@ -43,6 +52,18 @@ class AbesXml(object):
             string -- the record in unimarc_xml 
         """
         return self.record
+    
+    def get_init_status(self):
+        """Return the init status
+        """
+        return self.status
+
+    def get_error_msg(self):
+        if self.error_msg is not None:
+            return self.error_msg
+        else:
+            return "Pas de message d'erreur"
+
     
     def get_textual_holdings(self,rcr):
         """
@@ -61,19 +82,3 @@ class AbesXml(object):
             if item[:9] == rcr and field.find("subfield[@code='r']") is not None:
                 textual_holdings.append(field.find("subfield[@code='r']").text)
         return textual_holdings
-
-
-#Gestion des erreurs
-class HTTPError(Exception):
-
-    def __init__(self, response, service):
-        super(HTTPError,self).__init__(self.msg(response, service))
-
-    def msg(self, response, service):
-        logger = logging.getLogger(service)
-        msg = "\n  HTTP Status: {}\n  Method: {}\n  URL: {}\n  Response: {}"
-        sujet = service + 'Erreur'
-        message = mail.Mail()
-        message.envoie(os.getenv('ADMIN_MAIL'),os.getenv('ADMIN_MAIL'),sujet, msg.format(response.status_code, response.request.method, response.url, response.text) )
-        logger.error("HTTP Status: {} || Method: {} || URL: {} || Response: {}".format(response.status_code, response.request.method,
-                          response.url, response.text))
