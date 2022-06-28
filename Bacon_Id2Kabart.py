@@ -22,6 +22,7 @@ class Bacon_Id2Kbart(object):
         self.service = service
         self.bib_id = bib_id
         self.multi_providers = False
+        self.multi_kbart = False
         url =  '{}/{}.json'.format(self.endpoint, self.bib_id)
         r = requests.get(url)
         try:
@@ -37,52 +38,67 @@ class Bacon_Id2Kbart(object):
                 if type(self.record["query"]["provider"]) is dict :
                     #Test du nombre de Kbart (on peut avoir plusieurs Kbart pour un même ISBN et provider)
                     if type(self.record["query"]["provider"]["kbart"]) is list :
-                        self.status = 'Matching multiples'
-                    else:    
-                        self.status = 'Succes'
+                        self.multi_kbart = True
+                    self.status = 'Succes'
                 else : # Plusieurs providers
                     self.multi_providers = True
                     if type(self.record["query"]["provider"][0]["kbart"]) is list :
-                        self.status = 'Matching multiples'
-                    else:    
-                        self.status = 'Succes'
+                        self.multi_kbart = True
+                    self.status = 'Succes'
             else :
                 self.status = 'None'
-            self.logger.debug("{} :: Bacon :: Package créé avec succes".format(bib_id))
+            self.logger.debug("{} :: Bacon :: Existe dans Bacon".format(bib_id))
+            # self.logger.debug(self.record)
+
+    def parse_kbart(self,field):
+        if self.multi_providers :
+            if self.multi_kbart :
+                if self.record["query"]["provider"][0]["kbart"][0][field] :
+                    return self.record["query"]["provider"][0]["kbart"][0][field]
+                else :
+                    return None
+            if self.record["query"]["provider"][0]["kbart"][field] :
+                return self.record["query"]["provider"][0]["kbart"][field]
+            else :
+                return None
+        else :
+            if self.multi_kbart :
+                if self.record["query"]["provider"]["kbart"][0][field] : 
+                    return self.record["query"]["provider"]["kbart"][0][field]
+                else : 
+                    return None
+            if self.record["query"]["provider"]["kbart"][field] :
+                return self.record["query"]["provider"]["kbart"][field]
+            else :
+                return None
+
 
     def get_publication_title(self):
-        if self.multi_providers :
-            return self.record["query"]["provider"][0]["kbart"]["publication_title"]
-        else :
-            return self.record["query"]["provider"]["kbart"]["publication_title"]
-        
+        return self.parse_kbart("publication_title")
 
     def get_publisher_name(self):
-        if self.multi_providers :
-            return self.record["query"]["provider"][0]["kbart"]["publisher_name"]
-        else:
-            return self.record["query"]["provider"]["kbart"]["publisher_name"]
-
+        return self.parse_kbart("publisher_name")
+        
     def get_online_pubdate(self):
-        if self.multi_providers :
-            return self.record["query"]["provider"][0]["kbart"]["date_monograph_published_online"]
-        else:
-            return self.record["query"]["provider"]["kbart"]["date_monograph_published_online"]
+        return self.parse_kbart("date_monograph_published_online")
 
     def get_print_pubdate(self):
-        if self.multi_providers :
-            return self.record["query"]["provider"][0]["kbart"]["date_monograph_published_print"]
-        else:
-            return self.record["query"]["provider"]["kbart"]["date_monograph_published_print"]
+        return self.parse_kbart("date_monograph_published_print")
 
     def get_ppn(self):
-        if self.multi_providers :
-            if self.record["query"]["provider"][0]["kbart"]["bestppn"]:
-                return self.record["query"]["provider"][0]["kbart"]["bestppn"]
-            else:
-                return 'None'
-        else :
-            if self.record["query"]["provider"]["kbart"]["bestppn"]:
-                return self.record["query"]["provider"]["kbart"]["bestppn"]
-            else:
-                return 'None'
+        ppn = self.parse_kbart("bestppn")
+        self.logger.debug(ppn)
+        if ppn == "" :
+            return None
+        else : 
+            return ppn        
+        # if self.multi_providers :
+        #     if self.record["query"]["provider"][0]["kbart"]["bestppn"]:
+        #         return self.record["query"]["provider"][0]["kbart"]["bestppn"]
+        #     else:
+        #         return 'None'
+        # else :
+        #     if self.record["query"]["provider"]["kbart"]["bestppn"]:
+        #         return self.record["query"]["provider"]["kbart"]["bestppn"]
+        #     else:
+        #         return 'None'

@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 # internal import
 from mail import mail
 from logs import logs
+from datetime import datetime
 
 
 class AbesXml(object):
@@ -40,7 +41,7 @@ class AbesXml(object):
             else:
                 self.record = r.content.decode('utf-8')
                 self.status = 'Succes'
-                self.logger.debug("{} :: AbesXml :: Object créé avec succes".format(ppn))
+                self.logger.debug("{} :: AbesXml :: Notice trouvées".format(ppn))
 
     @property
     
@@ -82,3 +83,25 @@ class AbesXml(object):
             if item[:9] == rcr and field.find("subfield[@code='r']") is not None:
                 textual_holdings.append(field.find("subfield[@code='r']").text)
         return textual_holdings
+
+    def test_einventory(self,rcr,pf_id):
+        """
+        For a given library and portfolio test if a localisation exist in SUDOC
+        
+        Arguments:
+            rcr {string} -- the libray's id in Sudoc
+            pf_id {string} -- the portfolio id
+        
+        Returns:
+            Item Update date in SUDOC
+        """
+        update_date = None
+        root = ET.fromstring(self.record)
+        for field in root.findall(".//datafield[@tag='919']"):
+            item_id = field.find("subfield[@code='5']").text
+            if item_id[:9] == rcr and field.find("subfield[@code='a']").text == pf_id :
+                for update_field in root.findall(".//datafield[@tag='941']"):
+                    if update_field.find("subfield[@code='5']").text == item_id :
+                        update_date = datetime.strptime("{}-{}".format(update_field.find("subfield[@code='a']").text,update_field.find("subfield[@code='b']").text),'%Y%m%d-%H:%M:%S.000')
+                        
+        return update_date
