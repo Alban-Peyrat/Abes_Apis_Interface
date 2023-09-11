@@ -27,3 +27,9 @@ Attention, une validation de l'ISBN est exécutée avant d'appeler de webservice
 _En cours de codage [septembre 2023]_
 
 Interroge le SRU du Sudoc
+
+Si l'opération demandé au SRU est inavlide (= pas `explain`, `scan` ou `searchRetrieve`), renvoie `None`
+
+Même si l'opération `explain` ne prend pas de requête, il est quand même nécessaire de resneigner un string (qui peut être vide)
+
+La requête est encodée au moment de l'appel de de `SRU_Sudoc.sru_request()`, donc pas besoin de l'encodée avant (surtout ne pas encodé le `-` d'un filtre `APU` avant).
