@@ -15,13 +15,27 @@ import re
 # --------------- Enums ---------------
 
 XML_NS = {
-    "srw":"http://www.loc.gov/zing/srw/"
+    "srw":"http://www.loc.gov/zing/srw/",
+    "zr":"http://explain.z3950.org/dtd/2.0/",
+    "mg":"info:srw/extension/5/metadata-grouping-v1.0"
 }
 
 class SRU_Operations(Enum):
     SCAN = "scan"
-    EXPLAIN ="explain"
+    EXPLAIN = "explain"
     SEARCH = "searchRetrieve"
+
+class SRU_Record_Schemas(Enum):
+    DUBLIN_CORE = "dc"
+    PICA = "pica"
+    PICA_XML = "ppxml"
+    UNIMARC = "unimarc"
+    UNIMARC_SHORT = "uni_b"
+    PICA_SHORT = "pica_b"
+    PICA_SHORT_FCV_XML = "picaxml_b"
+    MARC21 = "marc21"
+    ISNI_BASIC = "isni-b"
+    ISNI_EXTENDED = "isni-e"
 
 class SRU_Record_Packing(Enum):
     XML = "xml"
@@ -227,12 +241,12 @@ class Sudoc_SRU(object):
         # Const
         self.endpoint = "https://www.sudoc.abes.fr/cbs/sru/"
         self.version = "1.1" # no choice possible
-        self.record_schema = "unimarc" # no choice possible
+        # self.record_schema = "unimarc" # no choice possible (says the doc)
         # logs
         self.logger = logging.getLogger(service)
         self.service = service
 
-    def sru_request(self, query: str, operation: SRU_Operations, record_packing=SRU_Record_Packing.XML, maximum_records=100, start_record=1):
+    def sru_request(self, query: str, operation: SRU_Operations, record_schema="unimarc", record_packing=SRU_Record_Packing.XML, maximum_records=100, start_record=1):
         # query part
         query = urllib.parse.quote(query)
         if type(operation) == SRU_Operations:
@@ -249,7 +263,7 @@ class Sudoc_SRU(object):
         url = f'{self.endpoint}?operation={operation}&version={self.version}'
         # For the Explain operation, nothing more is needed
         if operation == SRU_Operations.SEARCH.value:
-            url += f'&recordSchema={self.record_schema}&recordPacking={record_packing}'\
+            url += f'&recordSchema={record_schema}&recordPacking={record_packing}'\
                 f'&startRecord={start_record}&maximumRecords={maximum_records}&query={query}'
         elif operation == SRU_Operations.SCAN.value:
             url += ""
@@ -273,10 +287,10 @@ class Sudoc_SRU(object):
             result = r.content.decode('utf-8')
         
         if operation == SRU_Operations.EXPLAIN.value:
-            return SRU_Explain_Result()
+            return SRU_Explain_Result(status, error_msg, result, url)
         elif operation == SRU_Operations.SEARCH.value:
             return SRU_Search_Result(status, error_msg, result,
-                    operation, record_packing, maximum_records,
+                    record_schema, record_packing, maximum_records,
                     start_record, query, url)
         elif operation == SRU_Operations.SCAN.value:
             return 2
@@ -299,16 +313,108 @@ class Sudoc_SRU(object):
 # ---------- SRU Results ----------
 
 class SRU_Explain_Result(object):
-    a = 3
-    # voir le résltats dans files/explain_response.xml, puis au sein de ze:explain
-    # dans zr:metaInfo
-    # dans indexInfo
-    # dans schemaInfo
-    # dans sortkeyInfo
-    # dans configInfo
+    def __init__(self, status: Status, error: Errors, result: str, url: str):
+        self.operation = "explain"
+        self.status = status.value
+        if error:
+            self.error = error.value
+        else:
+            self.error = None
+        self.result_as_string = result
+        # Generate the result property
+        self.result = ET.fromstring(result)
+        self.url = url
+        # Stores the result infos
+        self.grouping_indexes = self.get_grouping_indexes()
+        self.indexes = self.get_indexes()
+        self.record_schemas = self.get_record_schemas()
+        self.sort_keys = self.get_sort_keys()
+
+    def get_result(self):
+            """Return the result as an ET Element."""
+            return self.result
+
+    def get_status(self):
+        """Return the init status as a string."""
+        return self.status
+
+    def get_error_msg(self):
+        """Return the error message."""
+        return str(self.error)
+    
+    def get_grouping_indexes(self):
+        """Returns a list of all groupings indexes as SRU_Index_From_Explain"""
+        output = []
+        for sru_index in self.result.find(".//srw:record/srw:recordData/zr:explain/zr:metaInfo/mg:supportedGroupings", XML_NS).findall(".//index"):
+            title = sru_index.find("title").text
+            index_set = sru_index.find("map/name").attrib["indexSet"]
+            key = sru_index.find("map/name").text
+            output.append(SRU_Index_From_Explain(title, index_set, key))
+        return output
+    
+    def get_indexes(self):
+        """Returns a list of all indexes as SRU_Index_From_Explain"""
+        output = []
+        for sru_index in self.result.find(".//srw:record/srw:recordData/zr:explain/indexInfo", XML_NS).findall(".//index"):
+            title = sru_index.find("title").text
+            index_set = sru_index.find("map/name").attrib["indexSet"]
+            key = sru_index.find("map/name").text
+            output.append(SRU_Index_From_Explain(title, index_set, key))
+        return output
+
+    def get_record_schemas(self):
+        """Returns a list of all recordSchema as SRU_Record_Schema_From_Explain"""
+        output = []
+        for record_schema in self.result.find(".//srw:record/srw:recordData/zr:explain/schemaInfo", XML_NS).findall(".//schema"):
+            title = record_schema.find("title").text
+            uri = record_schema.attrib["uri"]
+            sort = record_schema.attrib["sort"]
+            retrieve = record_schema.attrib["retrieve"]
+            key = record_schema.attrib["name"]
+            output.append(SRU_Record_Schema_From_Explain(title, uri, sort, retrieve, key))
+        return output
+
+    def get_sort_keys(self):
+        """Returns a list of all sortkeys as SRU_Sort_Key_From_Explain"""
+        output = []
+        for record_schema in self.result.find(".//srw:record/srw:recordData/zr:explain/sortkeyInfo", XML_NS).findall(".//sortkey"):
+            title = record_schema.find("title").text
+            uri = record_schema.attrib["uri"]
+            sort = record_schema.attrib["sort"]
+            retrieve = record_schema.attrib["retrieve"]
+            key = record_schema.attrib["name"]
+            output.append(SRU_Record_Schema_From_Explain(title, uri, sort, retrieve, key))
+        return output
+
+class SRU_Index_From_Explain(object):
+    def __init__(self, title: str, index_set: str, key: str):
+        self.title = title
+        self.index_set = index_set
+        self.key = key
+        self.as_string = f"{self.index_set}.{self.key} : {self.title}"
+
+class SRU_Record_Schema_From_Explain(object):
+    def __init__(self, title: str, uri: str, sort: str, retrieve: str, key: str):
+        self.title = title
+        self.uri = uri
+        self.sort = sort
+        self.retrieve = retrieve
+        self.key = key
+        self.as_string = f"{self.title} ({self.key}) : sort={self.sort}, "\
+            f"retrieve={self.retrieve}, uri={self.uri}"
+
+class SRU_Sort_Key_From_Explain(object):
+    def __init__(self, title: str, uri: str, sort: str, retrieve: str, key: str):
+        self.title = title
+        self.uri = uri
+        self.sort = sort
+        self.retrieve = retrieve
+        self.key = key
+        self.as_string = f"{self.title} ({self.key}) : sort={self.sort}, "\
+            f"retrieve={self.retrieve}, uri={self.uri}"
 
 class SRU_Search_Result(object):
-    def __init__(self, status: Status, error: Errors, result: str, operation: str, record_packing: str, maximum_records: int, start_record: int, query: str, url: str):
+    def __init__(self, status: Status, error: Errors, result: str, record_schema: str, record_packing: str, maximum_records: int, start_record: int, query: str, url: str):
         self.operation = "searchRetrieve"
         self.status = status.value
         if error:
@@ -324,7 +430,7 @@ class SRU_Search_Result(object):
         else:
             self.result = "Invalid recordPacking"
         # Original query parameters
-        self.operation = operation
+        self.record_schema = record_schema
         self.record_packing = record_packing
         self.maximum_record = maximum_records
         self.start_record = start_record
@@ -481,14 +587,14 @@ class Part_Of_Query(object):
 
 
 # Tests
-sru = Sudoc_SRU()
+# sru = Sudoc_SRU()
 # p1 = Part_Of_Query(SRU_Boolean_Operators.AND, SRU_Index.MOTS_DU_TITRE, SRU_Relation.EQUALS, "short")
 # p2 = Part_Of_Query(SRU_Boolean_Operators.AND, SRU_Index.AUT, SRU_Relation.EQUALS, "Renard Alice")
-# res = sru.sru_request(sru.generate_query(["(", p1, p2, ")"]), SRU_Operations.SEARCH, SRU_Record_Packing.XML)
-# res = sru.sru_request("ISB=2-905064-03-3", SRU_Operations.SEARCH, SRU_Record_Packing.XML)
-# p1 = Part_Of_Query(SRU_Boolean_Operators.AND, SRU_Index.AUT, SRU_Relation.EQUALS, "Renard Alice")
-# p2 = Part_Of_Query(SRU_Boolean_Operators.AND, SRU_Filters.APU, SRU_Relation.SUPERIOR_OR_EQUAL, 2020)
-# res = sru.sru_request(sru.generate_query([p1, p2]), SRU_Operations.SEARCH, SRU_Record_Packing.XML)
-# res = sru.sru_request("aut=renard alice", "a", SRU_Record_Packing.XML)
-res = sru.sru_request("", SRU_Operations.EXPLAIN, SRU_Record_Packing.XML)
-print(res.get_records_id())
+# res = sru.sru_request(sru.generate_query(["(", p1, p2, ")"]), SRU_Operations.SEARCH, record_schema="uni_b", record_packing=SRU_Record_Packing.XML)
+# # res = sru.sru_request("ISB=2-905064-03-3", SRU_Operations.SEARCH, SRU_Record_Packing.XML)
+# # p1 = Part_Of_Query(SRU_Boolean_Operators.AND, SRU_Index.AUT, SRU_Relation.EQUALS, "Renard Alice")
+# # p2 = Part_Of_Query(SRU_Boolean_Operators.AND, SRU_Filters.APU, SRU_Relation.SUPERIOR_OR_EQUAL, 2020)
+# # res = sru.sru_request(sru.generate_query([p1, p2]), SRU_Operations.SEARCH, SRU_Record_Packing.XML)
+# # res = sru.sru_request("aut=renard alice", "a", SRU_Record_Packing.XML)
+# # res = sru.sru_request("", SRU_Operations.EXPLAIN, SRU_Record_Packing.XML)
+# print(res.get_records_id())
