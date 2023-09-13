@@ -37,7 +37,7 @@ class SRU_Record_Schemas(Enum):
     ISNI_BASIC = "isni-b"
     ISNI_EXTENDED = "isni-e"
 
-class SRU_Record_Packing(Enum):
+class SRU_Record_Packings(Enum):
     XML = "xml"
     STRING = "string"
 
@@ -49,7 +49,7 @@ class Errors(Enum):
     HTTP_ERROR = "Service unavailable"
     GENERIC = "Generic exception, read logs for more information"
 
-class SRU_Index(Enum):
+class SRU_Indexes(Enum):
     # Index on numbers
     NUMERO_DE_NOTICE_SUDOC = "ppn"
     PPN = "ppn"
@@ -210,7 +210,7 @@ class SRU_Filter_PAY(Enum):
 
 # Ye PAI is a pain, maybe one day
 
-class SRU_Relation(Enum):
+class SRU_Relations(Enum):
     EQUALS = "="
     EXACT = " exact "
     ANY = " any "
@@ -227,6 +227,112 @@ class SRU_Boolean_Operators(Enum):
     NOT = " not "
 
 # --------------- Class Objects ---------------
+
+# ---------- SRU Query ----------
+
+class Part_Of_Query(object):
+    """Must provide the right data type"""
+    def __init__(self, index: SRU_Indexes | SRU_Filters, relation: SRU_Relations, value: str | int | SRU_Filter_TDO | SRU_Filter_LAN | SRU_Filter_PAY, bool_operator=SRU_Boolean_Operators.AND):
+        self.bool_operator = bool_operator
+        self.index = index
+        self.relation = relation
+        self.value = value 
+        self.invalid = False
+        if (
+                type(self.bool_operator) != SRU_Boolean_Operators
+                or type(self.relation) != SRU_Relations
+            ):
+            self.invalid = True
+        # Checks if it's a filter
+        self.is_filter = False
+        self.filter_value_is_manual = False
+        if type(self.index) == SRU_Filters:
+            self.is_filter = True
+            # Checks if filters value are OK
+            self.is_filter_valid()
+        elif type(self.index) != SRU_Indexes:
+            self.invalid = True
+        
+        # Calculated infos
+        self.as_string_with_operator = self.to_string(True)
+        self.as_string_without_operator = self.to_string(False)
+
+    def is_filter_valid(self):
+        # Document type filter
+        if self.index.value == SRU_Filters.TDO.value:
+            self.is_valid_filter_TDO()
+        # Language filter
+        elif self.index.value == SRU_Filters.LAN.value:
+            self.is_valid_filter_LAN()
+        # Rrare languages filter, no Enum so only a form check
+        elif self.index.value == SRU_Filters.LAI.value:
+            self.is_valid_filter_LAI()
+        # Country filter
+        elif self.index.value == SRU_Filters.PAY.value:
+            self.is_valid_filter_PAY()
+        # Rare countries filter, no Enum so only a form check
+        elif self.index.value == SRU_Filters.PAI.value:
+            self.is_valid_filter_PAI()
+        # Publication date filter
+        elif self.index.value == SRU_Filters.APU.value:
+            self.is_valid_filter_APU()
+
+    def is_valid_filter_TDO(self):
+        if type(self.value) != SRU_Filter_TDO:
+            if self.value not in [e.value for e in SRU_Filter_TDO]:
+                self.invalid = True
+            else:
+                self.filter_value_is_manual = True
+
+    def is_valid_filter_LAN(self):
+        if type(self.value) != SRU_Filter_LAN:
+            if self.value not in [e.value for e in SRU_Filter_LAN]:
+                self.invalid = True
+            else:
+                self.filter_value_is_manual = True
+    
+    def is_valid_filter_LAI(self):
+        if not re.search("^[a-zA-Z]{3}$", self.value):
+            self.invalid = True
+    
+    def is_valid_filter_PAY(self):
+        if type(self.value) != SRU_Filter_LAN:
+            if self.value not in [e.value for e in SRU_Filter_PAY]:
+                self.invalid = True
+            else:
+                self.filter_value_is_manual = True
+
+    def is_valid_filter_PAI(self):
+        if not re.search("^[a-zA-Z]{2}$", self.value):
+                self.invalid = True
+
+    def is_valid_filter_APU(self):
+        try:
+            int(self.value) # Works with 2000-2023
+        except ValueError:
+            self.invalid = True
+        # Only if ot's not already invalid
+        # Inf/sup or equal is not valid absed on APU doc : https://documentation.abes.fr/sudoc/manuels/interrogation/interrogation_professionnelle/index.html#apu
+        # Well, WinIBW is fine with it soooooooooo
+        if not self.invalid:
+            if self.relation.value not in [
+                    SRU_Relations.EQUALS.value,
+                    SRU_Relations.STRITCLY_SUPERIOR.value,
+                    SRU_Relations.STRITCLY_INFERIOR.value,
+                    SRU_Relations.SUPERIOR_OR_EQUAL.value,
+                    SRU_Relations.INFERIOR_OR_EQUAL.value
+                ]:
+                self.invalid = True
+
+    def to_string(self, include_operator=True):
+        val = self.value
+        # If the filter value was set manually
+        if not self.filter_value_is_manual and type(val) not in [str, int]:
+            val = val.value
+        if not include_operator:
+            return f"{self.index.value}{self.relation.value}{val}"
+        else:
+            return f"{self.bool_operator.value}{self.index.value}{self.relation.value}{val}"
 
 # ---------- SRU ----------
 
@@ -246,57 +352,133 @@ class Sudoc_SRU(object):
         self.logger = logging.getLogger(service)
         self.service = service
 
-    def sru_request(self, query: str, operation: SRU_Operations, record_schema="unimarc", record_packing=SRU_Record_Packing.XML, maximum_records=100, start_record=1):
-        # query part
-        query = urllib.parse.quote(query)
-        if type(operation) == SRU_Operations:
-            operation = operation.value
-        # Checks if the operation is valid
-        if operation not in [e.value for e in SRU_Operations]:
-                return None
-        if type(record_packing) == SRU_Record_Packing:
-            record_packing = record_packing.value
-        # Checks if the record packing is valid
-        if record_packing not in [e.value for e in SRU_Record_Packing]:
-                return None
-        # Defines the URL
-        url = f'{self.endpoint}?operation={operation}&version={self.version}'
-        # For the Explain operation, nothing more is needed
-        if operation == SRU_Operations.SEARCH.value:
-            url += f'&recordSchema={record_schema}&recordPacking={record_packing}'\
-                f'&startRecord={start_record}&maximumRecords={maximum_records}&query={query}'
-        elif operation == SRU_Operations.SCAN.value:
-            url += ""
-        
+
+    def explain(self):
+        """"""
+        url = f'{self.endpoint}?operation={SRU_Operations.EXPLAIN.value}&version={self.version}'
         status = None
         error_msg = None
+
+        # Request
         try:
             r = requests.get(url)
             r.raise_for_status()
         except requests.exceptions.HTTPError:
             status = Status.ERROR
             error_msg = Errors.HTTP_ERROR
-            self.logger.error(f"{query} :: Sudoc_SRU :: HTTP Status: {r.status_code} || Method: {r.request.method} || URL: {r.url} || Response: {r.text}")
+            self.logger.error(f"Explain :: Sudoc_SRU Explain :: HTTP Status: {r.status_code} || Method: {r.request.method} || URL: {r.url} || Response: {r.text}")
         except requests.exceptions.RequestException as generic_error:
             status = Status.ERROR
             self.error_msg = Errors.GENERIC
-            self.logger.error(f"{query} :: Sudoc_SRU :: Generic exception || URL: {url} || {generic_error}")
+            self.logger.error(f"Explain :: Sudoc_SRU Explain :: Generic exception || URL: {url} || {generic_error}")
         else:
             status = Status.SUCCESS
-            self.logger.debug(f"{query} :: Sudoc_SRU :: Success")
+            self.logger.debug(f"Explain :: Sudoc_SRU Explain :: Success")
             result = r.content.decode('utf-8')
         
-        if operation == SRU_Operations.EXPLAIN.value:
-            return SRU_Explain_Result(status, error_msg, result, url)
-        elif operation == SRU_Operations.SEARCH.value:
-            return SRU_Search_Result(status, error_msg, result,
-                    record_schema, record_packing, maximum_records,
-                    start_record, query, url)
-        elif operation == SRU_Operations.SCAN.value:
-            return 2
+        return SRU_Result_Explain(status, error_msg, result, url)
+
+    def search_retrieve(self, query: str, record_schema=SRU_Record_Schemas.UNIMARC, record_packing=SRU_Record_Packings.XML, maximum_records=100, start_record=1):
+        # Query part
+        query = urllib.parse.quote(query)
+        
+        # Convert record schema and record packing to their value
+        if type(record_schema) == SRU_Record_Schemas:
+            record_schema = record_schema.value
+        if type(record_packing) == SRU_Record_Packings:
+            record_packing = record_packing.value
+        # Checks some input values validity
+        if record_schema not in [e.value for e in SRU_Record_Schemas]:
+                record_schema = SRU_Record_Schemas.UNIMARC.value
+        if record_packing not in [e.value for e in SRU_Record_Packings]:
+                record_packing = SRU_Record_Packings.XML.value
+        maximum_records = self.to_int(maximum_records)
+        if not maximum_records:
+            maximum_records = 100
+        elif maximum_records > 1001:
+            maximum_records = 1000
+        elif maximum_records < 1:
+            maximum_records = 10
+        start_record = self.to_int(start_record)
+        if not start_record:
+            start_record = 1
+        elif start_record < 1:
+            start_record = 1
+
+        # Defines the URL
+        url = f'{self.endpoint}?operation={SRU_Operations.SEARCH.value}&version={self.version}'\
+            f'&recordSchema={record_schema}&recordPacking={record_packing}'\
+            f'&startRecord={start_record}&maximumRecords={maximum_records}&query={query}'
+        status = None
+        error_msg = None
+
+        # Request
+        try:
+            r = requests.get(url)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            status = Status.ERROR
+            error_msg = Errors.HTTP_ERROR
+            self.logger.error(f"{query} :: Sudoc_SRU Search Retrieve :: HTTP Status: {r.status_code} || Method: {r.request.method} || URL: {r.url} || Response: {r.text}")
+        except requests.exceptions.RequestException as generic_error:
+            status = Status.ERROR
+            self.error_msg = Errors.GENERIC
+            self.logger.error(f"{query} :: Sudoc_SRU Search Retrieve :: Generic exception || URL: {url} || {generic_error}")
         else:
-            return None
-    
+            status = Status.SUCCESS
+            self.logger.debug(f"{query} :: Sudoc_SRU Search Retrieve :: Success")
+            result = r.content.decode('utf-8')
+        
+        return SRU_Result_Search(status, error_msg, result,
+                record_schema, record_packing, maximum_records,
+                start_record, query, url)
+
+    def scan(self, scan_clause: str, maximum_terms=25, response_position=1):
+        # Query part
+        scan_clause = urllib.parse.quote(scan_clause)
+
+        # Checks some input values validity
+        maximum_terms = self.to_int(maximum_terms)
+        if not maximum_terms:
+            maximum_terms = 25
+        elif maximum_terms > 1001: # Doc does not say that there's a limit, but better safe than sorry
+            maximum_terms = 1000
+        elif maximum_terms < 1:
+            maximum_terms = 10
+        response_position = self.to_int(response_position)
+        if not response_position:
+            response_position = 1
+        elif response_position < 1:
+            response_position = 1
+        elif response_position > maximum_terms:
+            response_position = maximum_terms
+
+        # Defines the URL
+        url = f'{self.endpoint}?operation={SRU_Operations.SCAN.value}&version={self.version}'\
+            f"&responsePosition={response_position}&maximumTerms={maximum_terms}&scanClause={scan_clause}"
+        status = None
+        error_msg = None
+        
+        # request
+        try:
+            r = requests.get(url)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError:
+            status = Status.ERROR
+            error_msg = Errors.HTTP_ERROR
+            self.logger.error(f"{scan_clause} :: Sudoc_SRU Scan :: HTTP Status: {r.status_code} || Method: {r.request.method} || URL: {r.url} || Response: {r.text}")
+        except requests.exceptions.RequestException as generic_error:
+            status = Status.ERROR
+            self.error_msg = Errors.GENERIC
+            self.logger.error(f"{scan_clause} :: Sudoc_SRU Scan :: Generic exception || URL: {url} || {generic_error}")
+        else:
+            status = Status.SUCCESS
+            self.logger.debug(f"{scan_clause} :: Sudoc_SRU Scan :: Success")
+            result = r.content.decode('utf-8')
+        
+        return SRU_Result_Scan(status, error_msg, result,
+                maximum_terms, response_position, scan_clause, url)
+        
     def generate_query(self, list: list):
         """Ignore any list element that is not a string or Part_Of_Query.
         
@@ -310,21 +492,36 @@ class Sudoc_SRU(object):
                     output += query_part.to_string(bool(index))
         return output
 
-# ---------- SRU Results ----------
+    def generate_scan_clause(self, clause: Part_Of_Query):
+        """"""
+        return clause.to_string(False)
 
-class SRU_Explain_Result(object):
+    def to_int(self, val):
+        """Returns None if val can't be a int"""
+        try:
+            int(val) # Works with 2000-2023
+        except ValueError:
+            return None
+
+        return int(val)
+
+# ---------- SRU Explain Result ----------
+
+class SRU_Result_Explain(object):
     def __init__(self, status: Status, error: Errors, result: str, url: str):
-        self.operation = "explain"
+        self.operation = SRU_Operations.EXPLAIN.value
         self.status = status.value
         if error:
             self.error = error.value
         else:
             self.error = None
         self.result_as_string = result
+
         # Generate the result property
         self.result = ET.fromstring(result)
         self.url = url
-        # Stores the result infos
+
+        # Calculated infos
         self.grouping_indexes = self.get_grouping_indexes()
         self.indexes = self.get_indexes()
         self.record_schemas = self.get_record_schemas()
@@ -386,12 +583,17 @@ class SRU_Explain_Result(object):
             output.append(SRU_Record_Schema_From_Explain(title, uri, sort, retrieve, key))
         return output
 
+# ----- SRU Explain sub-classes -----
+
 class SRU_Index_From_Explain(object):
     def __init__(self, title: str, index_set: str, key: str):
         self.title = title
         self.index_set = index_set
         self.key = key
-        self.as_string = f"{self.index_set}.{self.key} : {self.title}"
+        self.as_string = self.to_string()
+    
+    def to_string(self):
+        return f"{self.index_set}.{self.key} : {self.title}"
 
 class SRU_Record_Schema_From_Explain(object):
     def __init__(self, title: str, uri: str, sort: str, retrieve: str, key: str):
@@ -400,8 +602,11 @@ class SRU_Record_Schema_From_Explain(object):
         self.sort = sort
         self.retrieve = retrieve
         self.key = key
-        self.as_string = f"{self.title} ({self.key}) : sort={self.sort}, "\
-            f"retrieve={self.retrieve}, uri={self.uri}"
+        self.as_string = self.to_string()
+    
+    def to_string(self):
+        return f"{self.title} ({self.key}) : sort={self.sort}, "\
+                f"retrieve={self.retrieve}, uri={self.uri}"
 
 class SRU_Sort_Key_From_Explain(object):
     def __init__(self, title: str, uri: str, sort: str, retrieve: str, key: str):
@@ -410,25 +615,32 @@ class SRU_Sort_Key_From_Explain(object):
         self.sort = sort
         self.retrieve = retrieve
         self.key = key
-        self.as_string = f"{self.title} ({self.key}) : sort={self.sort}, "\
-            f"retrieve={self.retrieve}, uri={self.uri}"
+        self.as_string = self.to_string()
+    
+    def to_string(self):
+        return f"{self.title} ({self.key}) : sort={self.sort}, "\
+                f"retrieve={self.retrieve}, uri={self.uri}"
 
-class SRU_Search_Result(object):
+# ---------- SRU Search Retrieve Result ----------
+
+class SRU_Result_Search(object):
     def __init__(self, status: Status, error: Errors, result: str, record_schema: str, record_packing: str, maximum_records: int, start_record: int, query: str, url: str):
-        self.operation = "searchRetrieve"
+        self.operation = SRU_Operations.SEARCH.value
         self.status = status.value
         if error:
             self.error = error.value
         else:
             self.error = None
         self.result_as_string = result
+
         # Generate the result property
-        if record_packing == SRU_Record_Packing.XML.value:
+        if record_packing == SRU_Record_Packings.XML.value:
             self.result = ET.fromstring(result)
-        elif record_packing == SRU_Record_Packing.STRING.value:
+        elif record_packing == SRU_Record_Packings.STRING.value:
             self.result = self.result_as_string
         else:
             self.result = "Invalid recordPacking"
+        
         # Original query parameters
         self.record_schema = record_schema
         self.record_packing = record_packing
@@ -436,6 +648,11 @@ class SRU_Search_Result(object):
         self.start_record = start_record
         self.query = query
         self.url = url
+        
+        # Calculated infos
+        self.nb_results = self.get_nb_results()
+        self.records = self.get_records()
+        self.records_id = self.get_records_id()
 
     def get_result(self):
             """Return the result as a string or ET Element depending the chosen recordPacking"""
@@ -458,9 +675,9 @@ class SRU_Search_Result(object):
 
     def get_records(self):
         """Returns all records as a list"""
-        if self.record_packing == SRU_Record_Packing.XML.value:
+        if self.record_packing == SRU_Record_Packings.XML.value:
             return self.result.findall(".//srw:record", XML_NS)
-        elif self.record_packing == SRU_Record_Packing.STRING.value:
+        elif self.record_packing == SRU_Record_Packings.STRING.value:
             output = []
             for record in ET.fromstring(self.result).findall(".//srw:record", XML_NS):
                 output.append(ET.tostring(record))
@@ -470,131 +687,84 @@ class SRU_Search_Result(object):
     
     def get_records_id(self):
         """Returns all records as a list of strings"""
+        # Don't have values (or can't be parsed)
+        if self.record_schema in [
+            SRU_Record_Schemas.DUBLIN_CORE.value,
+            # ↓ those can't be parsed
+            SRU_Record_Schemas.PICA_XML.value,
+            SRU_Record_Schemas.PICA_SHORT_FCV_XML.value,
+            SRU_Record_Schemas.ISNI_BASIC.value,
+            SRU_Record_Schemas.ISNI_EXTENDED.value
+        ]:
+            return []
+        
         records = self.get_records()
         output = []
-        
         for record in records:
-            if self.record_packing == SRU_Record_Packing.STRING.value:
+            if self.record_packing == SRU_Record_Packings.STRING.value:
                 record = ET.fromstring(record)
-            output.append(record.find(".//controlfield[@tag='001']").text)
+            # Controlfield search
+            if self.record_schema in [
+                SRU_Record_Schemas.UNIMARC.value,
+                SRU_Record_Schemas.UNIMARC_SHORT.value,
+            ]:
+                output.append(record.find(".//controlfield[@tag='001']").text)
+            # Datafield 003@ $0 search
+            elif self.record_schema in [
+                SRU_Record_Schemas.PICA.value,
+                SRU_Record_Schemas.PICA_SHORT.value,
+            ]:
+                output.append(record.find(".//datafield[@tag='003@']/subfield[@code='0']").text)
         return output
 
-class SRU_Scan_Result(object):
-    a = 3
+# ---------- SRU Scan Result ----------
 
-# ---------- SRU Query ----------
-
-class Part_Of_Query(object):
-    """Must provide the right data type"""
-
-    def __init__(self, bool_operator: SRU_Boolean_Operators, index: SRU_Index | SRU_Filters, relation: SRU_Relation, value: str | int | SRU_Filter_TDO | SRU_Filter_LAN | SRU_Filter_PAY):
-        self.bool_operator = bool_operator
-        self.index = index
-        self.relation = relation
-        self.value = value 
-        self.invalid = False
-        if (
-                type(self.bool_operator) != SRU_Boolean_Operators
-                or type(self.relation) != SRU_Relation
-            ):
-            self.invalid = True
-        # Checks if it's a filter
-        self.is_filter = False
-        self.filter_value_is_manual = False
-        if type(self.index) == SRU_Filters:
-            self.is_filter = True
-            # Checks if filters value are OK
-            self.is_filter_valid()
-        elif type(self.index) != SRU_Index:
-            self.invalid = True
-
-    def is_filter_valid(self):
-        # Document type filter
-        if self.index.value == SRU_Filters.TDO.value:
-            self.is_valid_filter_TDO()
-        # Language filter
-        elif self.index.value == SRU_Filters.LAN.value:
-            self.is_valid_filter_LAN()
-        # Rrare languages filter, no Enum so only a form check
-        elif self.index.value == SRU_Filters.LAI.value:
-            self.is_valid_filter_LAI()
-        # Country filter
-        elif self.index.value == SRU_Filters.PAY.value:
-            self.is_valid_filter_PAY()
-        # Rare countries filter, no Enum so only a form check
-        elif self.index.value == SRU_Filters.PAI.value:
-            self.is_valid_filter_PAI()
-        # Publication date filter
-        elif self.index.value == SRU_Filters.APU.value:
-            self.is_valid_filter_APU()
-
-    def is_valid_filter_TDO(self):
-        if type(self.value) != SRU_Filter_TDO:
-            if self.value not in [e.value for e in SRU_Filter_TDO]:
-                self.invalid = True
-            else:
-                self.filter_value_is_manual = True
-
-    def is_valid_filter_LAN(self):
-        if type(self.value) != SRU_Filter_LAN:
-            if self.value not in [e.value for e in SRU_Filter_LAN]:
-                self.invalid = True
-            else:
-                self.filter_value_is_manual = True
-    
-    def is_valid_filter_LAI(self):
-        if not re.search("^[a-zA-Z]{3}$", self.value):
-            self.invalid = True
-    
-    def is_valid_filter_PAY(self):
-        if type(self.value) != SRU_Filter_LAN:
-            if self.value not in [e.value for e in SRU_Filter_PAY]:
-                self.invalid = True
-            else:
-                self.filter_value_is_manual = True
-
-    def is_valid_filter_PAI(self):
-        if not re.search("^[a-zA-Z]{2}$", self.value):
-                self.invalid = True
-
-    def is_valid_filter_APU(self):
-        try:
-            int(self.value) # Works with 2000-2023
-        except ValueError:
-            self.invalid = True
-        # Only if ot's not already invalid
-        # Inf/sup or equal is not valid absed on APU doc : https://documentation.abes.fr/sudoc/manuels/interrogation/interrogation_professionnelle/index.html#apu
-        # Well, WinIBW is fine with it soooooooooo
-        if not self.invalid:
-            if self.relation.value not in [
-                    SRU_Relation.EQUALS.value,
-                    SRU_Relation.STRITCLY_SUPERIOR.value,
-                    SRU_Relation.STRITCLY_INFERIOR.value,
-                    SRU_Relation.SUPERIOR_OR_EQUAL.value,
-                    SRU_Relation.INFERIOR_OR_EQUAL.value
-                ]:
-                self.invalid = True
-
-    def to_string(self, include_operator=True):
-        val = self.value
-        # If the filter value was set manually
-        if not self.filter_value_is_manual and type(val) not in [str, int]:
-            val = val.value
-        if not include_operator:
-            return f"{self.index.value}{self.relation.value}{val}"
+class SRU_Result_Scan(object):
+    def __init__(self, status: Status, error: Errors, result: str, maximum_terms: int, response_position: int, scan_clause: str, url: str):
+        self.operation = SRU_Operations.SCAN.value
+        self.status = status.value
+        if error:
+            self.error = error.value
         else:
-            return f"{self.bool_operator.value}{self.index.value}{self.relation.value}{val}"
+            self.error = None
+        self.result_as_string = result
 
+        # Generate the result property
+        self.result = ET.fromstring(result)
 
-# Tests
+        # Original query parameters
+        self.maximum_terms = maximum_terms
+        self.response_position = response_position
+        self.scan_clause = scan_clause
+        self.url = url
+
+        # Calculated infos
+        self.terms = self.get_terms()
+
+    def get_terms(self):
+        """Returns a list of all terms as SRU_Scanned_Term"""
+        output = []
+        for term_container in self.result.findall(".//srw:terms/srw:term", XML_NS):
+            term = term_container.find("srw:displayTerm", XML_NS).text
+            nb_records = term_container.find("srw:numberOfRecords", XML_NS).text
+            extra_term_data = term_container.find("srw:extraTermData", XML_NS).text
+            value = term_container.find("srw:value", XML_NS).text
+            output.append(SRU_Scanned_Term(term, value, nb_records, extra_term_data))
+        return output
+
+# ----- SRU Explain sub-classes -----
+class SRU_Scanned_Term(object):
+    def __init__(self, term: str, value: str, nb_records: str, extra_term_data: str):
+        self.term = term
+        self.value = value
+        self.nb_records = int(nb_records)
+        self.extra_term_data = extra_term_data
+        self.as_string = self.to_string()
+    
+    def to_string(self):
+        return f"{self.term} : {self.nb_records}, "\
+                f"value={self.value}, extra term data={self.extra_term_data}"
+
 # sru = Sudoc_SRU()
-# p1 = Part_Of_Query(SRU_Boolean_Operators.AND, SRU_Index.MOTS_DU_TITRE, SRU_Relation.EQUALS, "short")
-# p2 = Part_Of_Query(SRU_Boolean_Operators.AND, SRU_Index.AUT, SRU_Relation.EQUALS, "Renard Alice")
-# res = sru.sru_request(sru.generate_query(["(", p1, p2, ")"]), SRU_Operations.SEARCH, record_schema="uni_b", record_packing=SRU_Record_Packing.XML)
-# # res = sru.sru_request("ISB=2-905064-03-3", SRU_Operations.SEARCH, SRU_Record_Packing.XML)
-# # p1 = Part_Of_Query(SRU_Boolean_Operators.AND, SRU_Index.AUT, SRU_Relation.EQUALS, "Renard Alice")
-# # p2 = Part_Of_Query(SRU_Boolean_Operators.AND, SRU_Filters.APU, SRU_Relation.SUPERIOR_OR_EQUAL, 2020)
-# # res = sru.sru_request(sru.generate_query([p1, p2]), SRU_Operations.SEARCH, SRU_Record_Packing.XML)
-# # res = sru.sru_request("aut=renard alice", "a", SRU_Record_Packing.XML)
-# # res = sru.sru_request("", SRU_Operations.EXPLAIN, SRU_Record_Packing.XML)
-# print(res.get_records_id())
+# res = sru.search_retrieve("aut=Renard alice", SRU_Record_Schemas.ISNI_EXTENDED, record_packing=SRU_Record_Packings.STRING)
+# print(str(res.records))
