@@ -37,8 +37,52 @@ La requête est encodée au moment de l'appel de de `SRU_Sudoc.sru_request()`, d
 
 ### Known bugs
 
-* Some record schemas can't be parsed by ET :
+* Some record schemas can't be parsed by ET [14/09/2023] :
   * Pica XML
   * Pica short (fcv XML)
+  * MARC21
   * ISNI Basic
   * ISNI Extended
+
+### Fix
+
+* For Pica XML :
+  * Some angle brackets are doubled
+  * Records are between `<srw:record><srw:recordData><record><ppxml:record>` but only the last one is closed.
+  * So if we remove double angle brackets
+  * Then, if we add `</record></srw:recordData></srw:record>`, between `</ppxml:record>` and (`<srw:record>` or `<srw:record>`)
+  * It should work
+  * Regex 1 : find "<\s*<+" subsitute "<"
+  * Regex 1.5 : find ">\s*>+" subsitute ">"
+  * Regex 2 : find `(?<=<\/ppxml:record>)\s*(?=(<srw:record>|<\/srw:records>))` subsitute `</record></srw:recordData></srw:record>`
+* For Pica short (fcv XML) :
+  * Records are bewteen angle brackets, but are just a text
+  * Records are between `<srw:record><srw:recordData><record>`, but none of them are closed
+  * So, if we add `</record></srw:recordData></srw:record>`, between `>` and `<srw:record>` or `<srw:record>`
+  * Then remove the angle brackets in the record
+  * It should work
+  * Regex 1 : find `(?<!<srw:records)>\s*(?=(<srw:record>|<\/srw:records>))` substitute `</record></srw:recordData></srw:record>`
+  * Regex 2.5 : find `(?<=<record>)\s*<` substitute nothing
+  * Regex 2.5 : find `>\s*(?=<\/record>)` substitute nothing
+* For MARC21 :
+  * Content of some leaders have malformed `<TR>` and `<TD>`
+  * Records close too soon with `</record></srw:recordData><srw:recordPosition>leader</srw:recordPosition></srw:record>`
+  * So if we delete `R>` following `<leader>`
+  * Then, we delete all `<TR>` and `<TD>`
+  * Then, delete all useless `</record></srw:recordData><srw:recordPosition>leader</srw:recordPosition></srw:record>`
+  * It should work
+  * Regex 1 : find `(?<=<leader>)\s*R>` substitute nothing
+  * Regex 2 : find `(<TD>|<TR>)` substitute nothing
+  * Regex 3 : find `(?<=<\/leader>)<\/record>\s*<\/srw:recordData>\s*<srw:recordPosition>\s*leader\s*<\/srw:recordPosition>\s*<\/srw:record>(?!\s*(<srw:record>|<\/srw:records>))` substitue nothing
+* For ISNI Basic and ISNI Extended :
+  * Some angle brackets are doubled
+  * Records are between `<srw:record><srw:recordData><record>` but, but none of them are closed
+  * Content should look like `<TR><TD><a></a></TD></TR>` but looks like `<TR><TD><a></a><TR>`
+  * So if we remove double angle brackets
+  * Then, transform `</a><TR>` in `</a></TD></TR>`
+  * Then, if we add `</record></srw:recordData></srw:record>`, between `</TR>` and (`<srw:record>` or `<srw:record>`)
+  * It should work
+  * Regex 1 : find "<\s*<+" subsitute "<"
+  * Regex 1.5 : find ">\s*>+" subsitute ">"
+  * Regex 2 : find `</a>\s*<TR>` subsitute `</a></TD></TR>`
+  * Regex 3 : find `(?<=</TR>)\s*(?=(<srw:record>|<\/srw:records>))` subsitute `</record></srw:recordData></srw:record>`

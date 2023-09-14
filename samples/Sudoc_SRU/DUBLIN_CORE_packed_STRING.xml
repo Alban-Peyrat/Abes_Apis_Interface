@@ -1,0 +1,56 @@
+<ns0:searchRetrieveResponse xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:ns0="http://www.loc.gov/zing/srw/" xmlns:ns2="http://www.loc.gov/zing/cql/xcql/" xmlns:ns3="http://www.loc.gov/zing/srw/diagnostic/" xmlns:ns4="info:srw/extension/2/auth-1.0" xmlns:ns5="info:srw/extension/5/metadata-grouping-v1.0">
+    <ns0:version>1.1</ns0:version>
+    <ns0:numberOfRecords>2</ns0:numberOfRecords>
+    <ns0:resultSetId>SIDce3396a6-2S1650</ns0:resultSetId>
+    <ns0:records>
+    
+	
+	    <ns0:record>
+	    <ns0:recordSchema>dc</ns0:recordSchema>
+	    <ns0:recordPacking>string</ns0:recordPacking>
+	    <ns0:recordData>
+	    <dc:dc>
+	    
+	    </dc:dc>
+	    </ns0:recordData>
+	    <ns0:recordPosition>1</ns0:recordPosition>
+	    </ns0:record> 
+	
+	    <ns0:record>
+	    <ns0:recordSchema>dc</ns0:recordSchema>
+	    <ns0:recordPacking>string</ns0:recordPacking>
+	    <ns0:recordData>
+	    <dc:dc>
+	    
+	    </dc:dc>
+	    </ns0:recordData>
+	    <ns0:recordPosition>2</ns0:recordPosition>
+	    </ns0:record> 
+	
+    
+</ns0:records>
+    <ns0:echoedSearchRetrieveRequest>
+	<ns0:version>1.1</ns0:version>
+	<ns0:query>aut%3DRenard+alice+and+apu%3E2021</ns0:query>
+	<ns0:xQuery><ns2:triple><ns2:boolean> <ns2:value>and</ns2:value></ns2:boolean><ns2:leftOperand><ns2:triple><ns2:boolean> <ns2:value>and</ns2:value></ns2:boolean><ns2:leftOperand><ns2:searchClause><ns2:index>aut</ns2:index><ns2:relation><ns2:value>=</ns2:value></ns2:relation><ns2:term>Renard</ns2:term></ns2:searchClause></ns2:leftOperand><ns2:rightOperand><ns2:searchClause><ns2:index>aut</ns2:index><ns2:relation><ns2:value>=</ns2:value></ns2:relation><ns2:term>alice</ns2:term></ns2:searchClause></ns2:rightOperand></ns2:triple></ns2:leftOperand><ns2:rightOperand><ns2:searchClause><ns2:index>apu</ns2:index><ns2:relation><ns2:value>&gt;</ns2:value></ns2:relation><ns2:term>2021</ns2:term></ns2:searchClause></ns2:rightOperand></ns2:triple></ns0:xQuery>
+	<startRecord>1</startRecord>
+	<maximumRecords>100</maximumRecords>
+	<ns0:recordPacking>string</ns0:recordPacking>
+	<ns0:recordSchema>dc</ns0:recordSchema>
+	
+	<ns0:stylesheet>/cbs/sru/DB=2.1/?xsl=searchRetrieveResponse</ns0:stylesheet>
+    </ns0:echoedSearchRetrieveRequest>
+    <ns3:diagnostics>
+        <ns3:uri>info:srw/diagnostic/1/0</ns3:uri>
+	
+	
+    </ns3:diagnostics>
+    <ns0:extraResponseData>
+	
+        <ns4:authenticationToken>U11506,Klecteursru,D2.1,Ed309d1e2-0,I1,B341720001+,SY,A%5C9008+1,,J,H2-26,,29,,34,,39,,44,,49-50,,53-78,,80-87,NLECTEUR+WEBSRU,Rwww.sudoc.abes.fr,FN</ns4:authenticationToken>
+        <ns5:resultGrouping>
+	    
+	    
+	</ns5:resultGrouping>
+    </ns0:extraResponseData>
+</ns0:searchRetrieveResponse>

@@ -1,0 +1,91 @@
+<ns0:searchRetrieveResponse xmlns:ns0="http://www.loc.gov/zing/srw/" xmlns:ns1="http://www.loc.gov/zing/cql/xcql/" xmlns:ns2="http://www.loc.gov/zing/srw/diagnostic/" xmlns:ns3="info:srw/extension/2/auth-1.0" xmlns:ns4="info:srw/extension/5/metadata-grouping-v1.0">
+    <ns0:version>1.1</ns0:version>
+    <ns0:numberOfRecords>2</ns0:numberOfRecords>
+    <ns0:resultSetId>SIDce3396a6-2S1664</ns0:resultSetId>
+    <ns0:records>
+    
+
+
+<ns0:record>
+<ns0:recordSchema>marc21</ns0:recordSchema>
+<ns0:recordPacking>string</ns0:recordPacking>
+<ns0:recordData>
+<record>
+<leader>Identifiant p&#233;renne de la notice : <a target="_blank" href="https://www.sudoc.fr/269631593">https://www.sudoc.fr/269631593</a></leader>
+<leader>Arthur de. Commissaire-priseur</leader>
+<leader>Vincent. Commissaire-priseur</leader>
+<leader>Th&#233;o (commissaire-priseur). Commissaire-priseur</leader>
+<leader>Michel. Commissaire-priseur</leader>
+<leader>Alexis (19..-.... ; expert ; marchand d'art). Expert</leader>
+<leader>Alice. Expert</leader>
+<leader>f&#232;vre (maison de ventes). Commissaire-priseur</leader>
+<leader>rtier &amp; associ&#233;s. ExpertDate(s) : 2023Langue(s) : fran&#231;aisPays : FrancePublication : Paris : Beaussant Lef&#232;vre &amp; Associ&#233;s, [2023]</leader></record></ns0:recordData><ns0:recordPosition>leader</ns0:recordPosition></ns0:record>
+
+<ns0:record>
+<ns0:recordSchema>marc21</ns0:recordSchema>
+<ns0:recordPacking>string</ns0:recordPacking>
+<ns0:recordData>
+<record>
+<leader>Identifiant p&#233;renne de la notice : <a target="_blank" href="https://www.sudoc.fr/261965441">https://www.sudoc.fr/261965441</a></leader>
+<leader>Isabelle (1969-....). Auteur</leader>
+<leader>Sophie (19..-....). Auteur</leader>
+<leader>Nicolas (1978-...). Auteur</leader>
+<leader>lat, Oph&#233;lie (19..-....). Auteur</leader>
+<leader>Prisca (1972-....). Auteur</leader>
+<leader>Morgane (19..-....). Auteur</leader>
+<leader>Nadia (19..-....). Auteur</leader>
+<leader>tre, Claire (1974-....). Auteur</leader>
+<leader>Alice (1993-....). Auteur</leader>
+<leader>Fabienne (19..-.... ; Membre du jury d'une th&#232;se de doctorat en Sciences de l'&#233;ducation et de la formation). Auteur</leader>
+<leader>Chantal (19..-....). Auteur</leader>
+<leader>Sophie (19..-....). Auteur</leader>
+<leader>Fanny (1975-....). Auteur</leader>
+<leader>S&#233;verine (19..-....). Auteur</leader>
+<leader>Sandrine (1979-....). AuteurDate(s) : 2022Langue(s) : fran&#231;aisPays : FrancePublication : Villeneuve d'Ascq : Presses universitaires du Septentrion, 2022</leader>
+<leader>L'enseignement professionnel et les moyens de la reproduction des ing&#233;lit&#233;s : politiques, offre de formation et contenus</leader>
+<leader>37. Chapitre 1. La formation des filles dans la voie professionnelle : entre gestion des flux et professionnalisation diff&#233;r&#233;e. L'exemple des dipl&#244;me du tertiaire administratif / Fabienne Maillard</leader>
+<leader>53. Chapitre 2. Los in orientation : les bacheli&#232;res profesionnelles face &#224; la poursuite d'&#233;tudes / Claire Lem&#234;tre, Sophie Orange</leader>
+<leader>77. Chapitre 3. Les naturalisations de f&#233;minit&#233;s populaires dans l'enseignement professionnel / Nicolas Divert, Fanny Renard</leader>
+<leader>. Des formations "f&#233;minines" au coeur des paradoxes</leader>
+<leader>95. Chapitre 4. L'enseignement m&#233;nager au d&#233;but du XXe si&#232;cle : un enseignement et un mode d'action genr&#233;s / Sandrine Roll</leader>
+<leader>109. Chapitre 5. Le genre : un non-sujet dans la formation professionnelle des futur.e.s cadres de sant&#233; / Sophie Divay</leader>
+<leader>25. Chapitre 6. Les ressorts de la socialisation genr&#233;e dans la formation en soins infirmiers / Alice Lermusiaux</leader>
+<leader>I. Des minoritaires de genre au coeur des transgressions</leader>
+<leader>151. Chapitre 7. Le genre des parcours d'insertion : se former et entrer dans des professions peu mixtes / S&#233;verine Rey, Oph&#233;lie Gu&#233;lat et Morgane Kuehni</leader>
+<leader>169. Chapitre 8. Pistes pour l'inclusion des femmes dans les fili&#232;res informatiques de la Haute &#233;cole sp&#233;cialis&#233;e de Suisse occidentale (HES-SO) / Isabelle Collet, Chantal Morley</leader>
+<leader>. Du jeu dans la domination</leader>
+<leader>189. Chapitre 9. De l'indocilit&#233; des filles des classes populaires / Prisca Kergoat</leader>
+<leader>203. Chapitre 10. Jeux de genre en formation professionnelle initiale. Socialisations, distance aux normes et r&#233;sistances / Nadia Lamamra</leader>
+<leader>223. Conclusion g&#233;n&#233;rale / Joachim Benet Rivi&#232;re, S&#233;verine Depoilly</leader>
+<leader>rences entre sexes en &#233;ducation -- Suisse -- 1945-....</leader>
+<leader>Enseignement professionnel -- France -- 1945-....</leader>
+<leader>Enseignement professionnel -- Suisse -- 1945-....</leader>
+<leader>ofessionnelle -- 1945-....</leader>
+<leader>mocratisation de l'enseignement -- 1945-....</leader>
+<leader>xuelle -- 1945-....</leader></record></ns0:recordData><ns0:recordPosition>leader</ns0:recordPosition></ns0:record>
+</ns0:records>
+    <ns0:echoedSearchRetrieveRequest>
+	<ns0:version>1.1</ns0:version>
+	<ns0:query>aut%3DRenard+alice+and+apu%3E2021</ns0:query>
+	<ns0:xQuery><ns1:triple><ns1:boolean> <ns1:value>and</ns1:value></ns1:boolean><ns1:leftOperand><ns1:triple><ns1:boolean> <ns1:value>and</ns1:value></ns1:boolean><ns1:leftOperand><ns1:searchClause><ns1:index>aut</ns1:index><ns1:relation><ns1:value>=</ns1:value></ns1:relation><ns1:term>Renard</ns1:term></ns1:searchClause></ns1:leftOperand><ns1:rightOperand><ns1:searchClause><ns1:index>aut</ns1:index><ns1:relation><ns1:value>=</ns1:value></ns1:relation><ns1:term>alice</ns1:term></ns1:searchClause></ns1:rightOperand></ns1:triple></ns1:leftOperand><ns1:rightOperand><ns1:searchClause><ns1:index>apu</ns1:index><ns1:relation><ns1:value>&gt;</ns1:value></ns1:relation><ns1:term>2021</ns1:term></ns1:searchClause></ns1:rightOperand></ns1:triple></ns0:xQuery>
+	<startRecord>1</startRecord>
+	<maximumRecords>100</maximumRecords>
+	<ns0:recordPacking>string</ns0:recordPacking>
+	<ns0:recordSchema>marc21</ns0:recordSchema>
+	
+	<ns0:stylesheet>/cbs/sru/DB=2.1/?xsl=searchRetrieveResponse</ns0:stylesheet>
+    </ns0:echoedSearchRetrieveRequest>
+    <ns2:diagnostics>
+        <ns2:uri>info:srw/diagnostic/1/0</ns2:uri>
+	
+	
+    </ns2:diagnostics>
+    <ns0:extraResponseData>
+	
+        <ns3:authenticationToken>U11506,Klecteursru,D2.1,Ed309d1e2-0,I1,B341720001+,SY,A%5C9008+1,,J,H2-26,,29,,34,,39,,44,,49-50,,53-78,,80-87,NLECTEUR+WEBSRU,Rwww.sudoc.abes.fr,FN</ns3:authenticationToken>
+        <ns4:resultGrouping>
+	    
+	    
+	</ns4:resultGrouping>
+    </ns0:extraResponseData>
+</ns0:searchRetrieveResponse>

@@ -1,0 +1,44 @@
+<ns0:searchRetrieveResponse xmlns:ns0="http://www.loc.gov/zing/srw/" xmlns:ns1="http://www.loc.gov/zing/cql/xcql/" xmlns:ns2="http://www.loc.gov/zing/srw/diagnostic/" xmlns:ns3="info:srw/extension/2/auth-1.0" xmlns:ns4="info:srw/extension/5/metadata-grouping-v1.0">
+    <ns0:version>1.1</ns0:version>
+    <ns0:numberOfRecords>2</ns0:numberOfRecords>
+    <ns0:resultSetId>SIDce3396a6-2S1667</ns0:resultSetId>
+    <ns0:records>
+    
+
+
+<ns0:record>
+<ns0:recordSchema>isni-e</ns0:recordSchema>
+<ns0:recordPacking>xml</ns0:recordPacking>
+<ns0:recordData>
+<record>
+<TR>Identifiant p&#233;renne de la notice : <TD><a target="_blank" href="https://www.sudoc.fr/269631593">https://www.sudoc.fr/269631593</a></TD></TR></record></ns0:recordData></ns0:record><ns0:record>
+<ns0:recordSchema>isni-e</ns0:recordSchema>
+<ns0:recordPacking>xml</ns0:recordPacking>
+<ns0:recordData>
+<record>
+<TR>Identifiant p&#233;renne de la notice : <TD><a target="_blank" href="https://www.sudoc.fr/261965441">https://www.sudoc.fr/261965441</a></TD></TR></record></ns0:recordData></ns0:record></ns0:records>
+    <ns0:echoedSearchRetrieveRequest>
+	<ns0:version>1.1</ns0:version>
+	<ns0:query>aut%3DRenard+alice+and+apu%3E2021</ns0:query>
+	<ns0:xQuery><ns1:triple><ns1:boolean> <ns1:value>and</ns1:value></ns1:boolean><ns1:leftOperand><ns1:triple><ns1:boolean> <ns1:value>and</ns1:value></ns1:boolean><ns1:leftOperand><ns1:searchClause><ns1:index>aut</ns1:index><ns1:relation><ns1:value>=</ns1:value></ns1:relation><ns1:term>Renard</ns1:term></ns1:searchClause></ns1:leftOperand><ns1:rightOperand><ns1:searchClause><ns1:index>aut</ns1:index><ns1:relation><ns1:value>=</ns1:value></ns1:relation><ns1:term>alice</ns1:term></ns1:searchClause></ns1:rightOperand></ns1:triple></ns1:leftOperand><ns1:rightOperand><ns1:searchClause><ns1:index>apu</ns1:index><ns1:relation><ns1:value>&gt;</ns1:value></ns1:relation><ns1:term>2021</ns1:term></ns1:searchClause></ns1:rightOperand></ns1:triple></ns0:xQuery>
+	<startRecord>1</startRecord>
+	<maximumRecords>100</maximumRecords>
+	<ns0:recordPacking>xml</ns0:recordPacking>
+	<ns0:recordSchema>isni-e</ns0:recordSchema>
+	
+	<ns0:stylesheet>/cbs/sru/DB=2.1/?xsl=searchRetrieveResponse</ns0:stylesheet>
+    </ns0:echoedSearchRetrieveRequest>
+    <ns2:diagnostics>
+        <ns2:uri>info:srw/diagnostic/1/0</ns2:uri>
+	
+	
+    </ns2:diagnostics>
+    <ns0:extraResponseData>
+	
+        <ns3:authenticationToken>U11506,Klecteursru,D2.1,Ed309d1e2-0,I1,B341720001+,SY,A%5C9008+1,,J,H2-26,,29,,34,,39,,44,,49-50,,53-78,,80-87,NLECTEUR+WEBSRU,Rwww.sudoc.abes.fr,FN</ns3:authenticationToken>
+        <ns4:resultGrouping>
+	    
+	    
+	</ns4:resultGrouping>
+    </ns0:extraResponseData>
+</ns0:searchRetrieveResponse>
