@@ -1,0 +1,93 @@
+
+
+--------------- Explain ---------------
+URL : https://www.sudoc.abes.fr/cbs/sru/?operation=explain&version=1.1
+Gouping indexes :
+ -  pica.none : (pica)none
+ -  pica.9000 : (pica)Année de publication
+ -  pica.9001 : (pica)Type de document
+ -  pica.9004 : (pica)Langue du document
+ -  pica.9005 : (pica)Pays de publication
+Indexes (only 5) :
+ -  pica.tou : (pica)Tous les mots
+ -  pica.mti : (pica)Mots du titre
+ -  pica.msu : (pica)Mots sujet
+ -  pica.aut : (pica)Mots auteur(s)
+ -  pica.per : (pica)Nom de personne
+Record Schemas (only 3) :
+ -  DC:Dublin Core (dc) : sort=true, retrieve=true, uri=
+ -  Pica (pica) : sort=true, retrieve=true, uri=
+ -  Pica xml (ppxml) : sort=true, retrieve=true, uri=
+Sort keys (only 3) :
+ -  none (none) : sort=true, retrieve=true, uri=
+ -  Pica:pertinence (RLV,pica,0,,) : sort=true, retrieve=true, uri=
+ -  Pica:année de publication (YOP,pica,0,,) : sort=true, retrieve=true, uri=
+
+
+--------------- Scan 1 ---------------
+URL : https://www.sudoc.abes.fr/cbs/sru/?operation=scan&version=1.1&responsePosition=1&maximumTerms=25&scanClause=mti%3Dpoisson
+Response position : 1
+Maximum terms : 25
+poissl : 2, value=None, extra term data=None
+poisson : 3312, value=None, extra term data=None
+poissonbanane : 4, value=None, extra term data=None
+poissonbased : 1, value=None, extra term data=None
+poissonbedault : 1, value=None, extra term data=None
+poissonbinomial : 1, value=None, extra term data=None
+poissonbleu : 1, value=None, extra term data=None
+poissonboltzmann : 7, value=None, extra term data=None
+poissonceaux : 1, value=None, extra term data=None
+poissonchat : 21, value=None, extra term data=None
+poissonclown : 8, value=None, extra term data=None
+poissoncoffre : 2, value=None, extra term data=None
+poissonconforme : 2, value=None, extra term data=None
+poissondelaunay : 1, value=None, extra term data=None
+poissondieu : 1, value=None, extra term data=None
+poissondirichlet : 5, value=None, extra term data=None
+poissondragon : 1, value=None, extra term data=None
+poissondriven : 1, value=None, extra term data=None
+poissone : 1, value=None, extra term data=None
+poissonenvironnement : 1, value=None, extra term data=None
+poissonfurstenberg : 1, value=None, extra term data=None
+poissongamma : 4, value=None, extra term data=None
+poissongauss : 1, value=None, extra term data=None
+poissongaussian : 2, value=None, extra term data=None
+poissongeometrie : 1, value=None, extra term data=None
+
+
+--------------- Scan 2 ---------------
+URL : https://www.sudoc.abes.fr/cbs/sru/?operation=scan&version=1.1&responsePosition=1&maximumTerms=4&scanClause=mti%3Drenard
+Response position : 1
+renarcissization : 1, value=None, extra term data=None
+renard : 1999, value=None, extra term data=None
+rénard : 6, value=None, extra term data=None
+renard1973 : 1, value=None, extra term data=None
+
+
+--------------- Search Retrieve 1 ---------------
+URL : https://www.sudoc.abes.fr/cbs/sru/?operation=searchRetrieve&version=1.1&recordSchema=unimarc&recordPacking=xml&startRecord=1&maximumRecords=100&query=mti%3Drenard
+Query : mti%3Drenard
+Record Schema : unimarc
+Record Packing : xml
+Maximum Records : 100
+Start Record : 1
+Records id :  ['177040807', '159020778', '079289045', '155021028', '036735612', '115300295', '17703985X', '159019575', '139598898', '166664480', '225743116', '203125673', '183917901', '012106623', '174456964', '154696145', '177040750', '159020611', '177039973', '159020220', '184468752', '237452499', '112018939', '18834716X', '171594320', '164497277', '133736636', '189735260', '263211215', '164290168', '182294749', '110393562', '22173175X', '142869104', '128048360', '111448867', '158479203', '108124983', '108128288', '073536822', '176777709', '176122907', '180229435', '165092424', '011662220', '194294242', '121935574', '132259583', '099575949', '254139485', '120468832', '130755869', '095613382', '128779322', '10196756X', '086556398', '105037443', '175013586', '105037176', '229471285', '182887596', '182887308', '177039728', '159018587', '241382831', '159394775', '266346375', '142846562', '14284196X', '008241163', '13426990X', '132347679', '118830651', '267026323', '129880736', '014112566', '014041855', '225169762', '172520037', '01404000X', '040540014', '040456854', '166124052', '117430846', '081245963', '055235840', '048723533', '059105917', '189166320', '050004999', '152395032', '226175170', 
+'047373784', '038492091', '049699539', '155766368', '06914169X', '134644026', '256986835', '252589815']
+
+
+--------------- Search Retrieve 2 ---------------
+URL : https://www.sudoc.abes.fr/cbs/sru/?operation=searchRetrieve&version=1.1&recordSchema=ppxml&recordPacking=string&startRecord=1&maximumRecords=23&query=%28%20and%20mti%3Drenard%20or%20mti%3Dpoisson%29%20and%20APU%20%3E%202020
+Query : %28%20and%20mti%3Drenard%20or%20mti%3Dpoisson%29%20and%20APU%20%3E%202020
+Record Schema : ppxml
+Record Packing : string
+Maximum Records : 23
+Start Record : 1
+Records id :  ['269687238', '255883153', '252506782', '254720625', '237691655', '25588382X', '268389136', '257352643', '257352627', '258062363', '242818986']
+
+
+--------------- Search Retrieve 3 ---------------
+URL : https://www.sudoc.abes.fr/cbs/sru/?operation=searchRetrieve&version=1.1&recordSchema=isni-b&recordPacking=xml&startRecord=1&maximumRecords=100&query=aut%3Drenard%20alice%20and%20nth%3Dbordeaux%2020%2A
+Query : aut%3Drenard%20alice%20and%20nth%3Dbordeaux%2020%2A
+Record Schema : isni-b
+Record Packing : xml
+Record :  b'<ns0:record xmlns:ns0="http://www.loc.gov/zing/srw/">\n<ns0:recordSchema>isni-b</ns0:recordSchema>\n<ns0:recordPacking>xml</ns0:recordPacking>\n<ns0:recordData>\n<record>\n<TR>Identifiant p&#233;renne de la notice : <TD><a target="_blank" href="https://www.sudoc.fr/252534581">https://www.sudoc.fr/252534581</a></TD></TR></record></ns0:recordData></ns0:record>'

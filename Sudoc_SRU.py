@@ -8,9 +8,7 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 import re
 
-# Doc : https://abes.fr/wp-content/uploads/2023/05/guide-utilisation-service-sru-catalogue-sudoc.pdf
-# SRU V1.1 is used
-# #AR360 pour la liste des modifs à faire
+# See README.md for more informations
 
 # --------------- Enums ---------------
 
@@ -359,6 +357,7 @@ class Sudoc_SRU(object):
         url = f'{self.endpoint}?operation={SRU_Operations.EXPLAIN.value}&version={self.version}'
         status = None
         error_msg = None
+        result = ""
 
         # Request
         try:
@@ -412,6 +411,7 @@ class Sudoc_SRU(object):
             f'&startRecord={start_record}&maximumRecords={maximum_records}&query={query}'
         status = None
         error_msg = None
+        result = ""
 
         # Request
         try:
@@ -459,6 +459,7 @@ class Sudoc_SRU(object):
             f"&responsePosition={response_position}&maximumTerms={maximum_terms}&scanClause={scan_clause}"
         status = None
         error_msg = None
+        result = ""
         
         # request
         try:
@@ -501,7 +502,7 @@ class Sudoc_SRU(object):
         """Returns None if val can't be a int"""
         try:
             int(val) # Works with 2000-2023
-        except ValueError:
+        except TypeError:
             return None
 
         return int(val)
@@ -511,16 +512,17 @@ class Sudoc_SRU(object):
 class SRU_Result_Explain(object):
     def __init__(self, status: Status, error: Errors, result: str, url: str):
         self.operation = SRU_Operations.EXPLAIN.value
+        self.url = url
         self.status = status.value
         if error:
             self.error = error.value
+            return
         else:
             self.error = None
         self.result_as_string = result
 
         # Generate the result property
         self.result = ET.fromstring(result)
-        self.url = url
 
         # Calculated infos
         self.grouping_indexes = self.get_grouping_indexes()
@@ -629,9 +631,11 @@ class SRU_Result_Search(object):
 
     def __init__(self, status: Status, error: Errors, result: str, record_schema: str, record_packing: str, maximum_records: int, start_record: int, query: str, url: str):
         self.operation = SRU_Operations.SEARCH.value
+        self.url = url
         self.status = status.value
         if error:
             self.error = error.value
+            return
         else:
             self.error = None
         self.result_as_string = result
@@ -646,12 +650,12 @@ class SRU_Result_Search(object):
         elif record_schema in [SRU_Record_Schemas.PICA_SHORT_FCV_XML.value]:
             result = re.sub("(?<!<srw:records)>\s*(?=(<srw:record>|<\/srw:records>))", self.closing_tags_fix, result)
             result = re.sub("(?<=<record>)\s*<", "", result)
-            result = re.sub(">\s*(?=<\/record>)", "", result)
+            result = re.sub(">\s*(?=<\/record>)", "", result) # useless ?
         # Marc 21
         if record_schema in [SRU_Record_Schemas.MARC21.value]:
             result = re.sub("(?<=<leader>)\s*R>", "", result)
             result = re.sub("(<TD>|<TR>)", "", result)
-            result = re.sub("(?<=<\/leader>)<\/record>\s*<\/srw:recordData>\s*<srw:recordPosition>\s*leader\s*<\/srw:recordPosition>\s*<\/srw:record>(?!\s*(<srw:record>|<\/srw:records>))", "", result)
+            result = re.sub("(?<=<\/leader>)\s*<\/record>\s*<\/srw:recordData>\s*<srw:recordPosition>\s*leader\s*<\/srw:recordPosition>\s*<\/srw:record>\s*(?!\s*(<srw:record>|<\/srw:records>))", "", result)
         # ISNI Basic & ISNI Extended
         elif record_schema in [SRU_Record_Schemas.ISNI_BASIC.value,
                 SRU_Record_Schemas.ISNI_EXTENDED.value,]:
@@ -674,7 +678,6 @@ class SRU_Result_Search(object):
         self.maximum_record = maximum_records
         self.start_record = start_record
         self.query = query
-        self.url = url
         
         # Calculated infos
         self.nb_results = self.get_nb_results()
@@ -770,9 +773,11 @@ class SRU_Result_Search(object):
 class SRU_Result_Scan(object):
     def __init__(self, status: Status, error: Errors, result: str, maximum_terms: int, response_position: int, scan_clause: str, url: str):
         self.operation = SRU_Operations.SCAN.value
+        self.url = url
         self.status = status.value
         if error:
             self.error = error.value
+            return
         else:
             self.error = None
         self.result_as_string = result
@@ -784,7 +789,6 @@ class SRU_Result_Scan(object):
         self.maximum_terms = maximum_terms
         self.response_position = response_position
         self.scan_clause = scan_clause
-        self.url = url
 
         # Calculated infos
         self.terms = self.get_terms()
