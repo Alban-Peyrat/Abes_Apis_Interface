@@ -58,7 +58,7 @@ for term in res.terms:
 # --------------- Search Retrieve ---------------
 res = None
 print("\n\n--------------- Search Retrieve 1 ---------------")
-res = sru.search_retrieve("mti=renard")
+res = sru.search("mti=renard")
 print("URL :", res.url)
 print("Query :", res.query)
 print("Record Schema :", res.record_schema)
@@ -69,7 +69,7 @@ print("Records id : ", str(res.records_id))
 
 res = None
 print("\n\n--------------- Search Retrieve 2 ---------------")
-res = sru.search_retrieve(sru.generate_query([
+res = sru.search(sru.generate_query([
         "(",
         ssru.Part_Of_Query(ssru.SRU_Indexes.MTI, ssru.SRU_Relations.EQUALS, "renard"),
         ssru.Part_Of_Query(ssru.SRU_Indexes.MTI, ssru.SRU_Relations.EQUALS, "poisson", bool_operator=ssru.SRU_Boolean_Operators.OR),
@@ -89,7 +89,7 @@ print("Records id : ", str(res.records_id))
 
 res = None
 print("\n\n--------------- Search Retrieve 3 ---------------")
-res = sru.search_retrieve(sru.generate_query([
+res = sru.search(sru.generate_query([
         ssru.Part_Of_Query(ssru.SRU_Indexes.AUT, ssru.SRU_Relations.EQUALS, "renard alice"),
         ssru.Part_Of_Query(ssru.SRU_Indexes.NOTE_DE_THESE, ssru.SRU_Relations.EQUALS, "bordeaux 20*")]),
         record_schema="isni-b",
@@ -105,7 +105,7 @@ print("Record : ", ET.tostring(res.records[0]))
 # res = None
 # for schema in ssru.SRU_Record_Schemas:
 #     for packing in ssru.SRU_Record_Packings:
-#         res = sru.search_retrieve("aut=Renard alice and apu>2021", record_schema=schema, record_packing=packing)
+#         res = sru.search("aut=Renard alice and apu>2021", record_schema=schema, record_packing=packing)
 #         print(f"{schema} as {packing}")
 #         with open(f"./samples/Sudoc_SRU/{schema.name}_packed_{packing.name}.xml", mode="wb") as f:
 #             f.write(ET.tostring(res.result_as_parsed_xml))

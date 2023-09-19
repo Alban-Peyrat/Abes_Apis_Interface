@@ -28,7 +28,7 @@ _En cours de codage [septembre 2023]_
 
 A set of function to request [Sudoc's SRU service](https://abes.fr/reseau-sudoc/reutiliser-les-donnees-sudoc/service-sru/) ([documentation](https://abes.fr/wp-content/uploads/2023/05/guide-utilisation-service-sru-catalogue-sudoc.pdf)).
 All 3 operations are handled (`explain`, `searchRetrieve` and `scan`).
-See [doc/SRU_Sudoc.md](./doc/Sudoc_SRU.md) for the documentation.
+See [`doc/SRU_Sudoc.md` for the documentation](./doc/Sudoc_SRU.md).
 
-_[`Sudoc_SRU_tests.py`](./Sudoc_SRU_tests.py) shows some code examples, [test_results/Sudoc_SRU.txt](./test_results/Sudoc_SRU.txt) shows the terminal after executing the file._
+_[`Sudoc_SRU_tests.py`](./Sudoc_SRU_tests.py) shows some code examples, [`test_results/Sudoc_SRU.txt`](./test_results/Sudoc_SRU.txt) shows the terminal after executing the file._
 _[`samples/Sudoc_SRU`](./samples/Sudoc_SRU/) contains XML files showing how returned data looks like._

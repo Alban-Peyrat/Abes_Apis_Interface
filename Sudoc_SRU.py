@@ -230,7 +230,15 @@ class SRU_Boolean_Operators(Enum):
 # ---------- SRU Query ----------
 
 class Part_Of_Query(object):
-    """Must provide the right data type"""
+    """Part_Of_Query
+    =======
+    Generate a Part_Of_Query that can be used in Sudoc_SRU.generate_query() or Sudoc_SRU.generate_scan_clause().
+    On init, takes as argument (must provide the right data type) :
+        - index {SRU_Indexes or SRU_Filters} : the index to use
+        - relation {SRU_Relations} : the relation to use
+        - value {str, int, SRU_Filter_TDO, SRU_Filter_LAN or SRU_Filter_PAY} : the value to search in the index
+        - [optional] bool_operator {SRU_Boolean_Operators} : the boolean operator to use, defauts to AND"""
+    
     def __init__(self, index: SRU_Indexes | SRU_Filters, relation: SRU_Relations, value: str | int | SRU_Filter_TDO | SRU_Filter_LAN | SRU_Filter_PAY, bool_operator=SRU_Boolean_Operators.AND):
         self.bool_operator = bool_operator
         self.index = index
@@ -257,6 +265,7 @@ class Part_Of_Query(object):
         self.as_string_without_operator = self.to_string(False)
 
     def is_filter_valid(self):
+        """Checks if filters value are valid"""
         # Document type filter
         if self.index.value == SRU_Filters.TDO.value:
             self.is_valid_filter_TDO()
@@ -277,6 +286,7 @@ class Part_Of_Query(object):
             self.is_valid_filter_APU()
 
     def is_valid_filter_TDO(self):
+        """Checks if TDO filter value is valid"""
         if type(self.value) != SRU_Filter_TDO:
             if self.value not in [e.value for e in SRU_Filter_TDO]:
                 self.invalid = True
@@ -284,6 +294,7 @@ class Part_Of_Query(object):
                 self.filter_value_is_manual = True
 
     def is_valid_filter_LAN(self):
+        """Checks if LAN filter value is valid"""
         if type(self.value) != SRU_Filter_LAN:
             if self.value not in [e.value for e in SRU_Filter_LAN]:
                 self.invalid = True
@@ -291,10 +302,12 @@ class Part_Of_Query(object):
                 self.filter_value_is_manual = True
     
     def is_valid_filter_LAI(self):
+        """Checks if LAI filter value is valid"""
         if not re.search("^[a-zA-Z]{3}$", self.value):
             self.invalid = True
     
     def is_valid_filter_PAY(self):
+        """Checks if PAY filter value is valid"""
         if type(self.value) != SRU_Filter_LAN:
             if self.value not in [e.value for e in SRU_Filter_PAY]:
                 self.invalid = True
@@ -302,10 +315,12 @@ class Part_Of_Query(object):
                 self.filter_value_is_manual = True
 
     def is_valid_filter_PAI(self):
+        """Checks if PAI filter value is valid"""
         if not re.search("^[a-zA-Z]{2}$", self.value):
                 self.invalid = True
 
     def is_valid_filter_APU(self):
+        """Checks if APU filter value is valid"""
         try:
             int(self.value) # Works with 2000-2023
         except ValueError:
@@ -324,6 +339,10 @@ class Part_Of_Query(object):
                 self.invalid = True
 
     def to_string(self, include_operator=True):
+        """Returns the Part_Of_Query as a string.
+        Takes as parameter :
+            - [optional] incule_operator {bool} : include the operator in the output. Defaults to True"""
+        
         val = self.value
         # If the filter value was set manually
         if not self.filter_value_is_manual and type(val) not in [str, int]:
@@ -340,8 +359,7 @@ class Sudoc_SRU(object):
     =======
     A set of function to query Sudoc's SRU
     On init take as arguments :
-    - [optional] service {str} : Name of the service for the logs
-"""
+        - [optional] service {str} : Name of the service for the logs"""
     def __init__(self, service="Sudoc_SRU"):
         # Const
         self.endpoint = "https://www.sudoc.abes.fr/cbs/sru/"
@@ -353,7 +371,8 @@ class Sudoc_SRU(object):
 
 
     def explain(self):
-        """"""
+        """GET an explain request from the SRU and returns a SRU_Result_Explain instance"""
+
         url = f'{self.endpoint}?operation={SRU_Operations.EXPLAIN.value}&version={self.version}'
         status = None
         error_msg = None
@@ -378,7 +397,15 @@ class Sudoc_SRU(object):
         
         return SRU_Result_Explain(status, error_msg, result, url)
 
-    def search_retrieve(self, query: str, record_schema=SRU_Record_Schemas.UNIMARC, record_packing=SRU_Record_Packings.XML, maximum_records=100, start_record=1):
+    def search(self, query: str, record_schema=SRU_Record_Schemas.UNIMARC, record_packing=SRU_Record_Packings.XML, maximum_records=100, start_record=1):
+        """GET a search retrieve request from the SRU and returns a SRU_Result_Search instance
+        Takes as arguments :
+            - query {str} : the query
+            - [optional] record_schema {SRU_Record_Schema} : the record schema
+            - [optional] record_packing {SRU_Record_packings} : the record packing
+            - [optional] maximum_records {int} : the maximum records to be returned (between 1 and 1000)
+            - [optional] start_record {int} : the position of the first result in the query result list (> 0)"""
+        
         # Query part
         query = urllib.parse.quote(query)
         
@@ -435,6 +462,12 @@ class Sudoc_SRU(object):
                 start_record, query, url)
 
     def scan(self, scan_clause: str, maximum_terms=25, response_position=1):
+        """GET a scan request from the SRU and returns a SRU_Result_Scan instance
+        Takes as arguments :
+            - scan_clause {str} : the query
+            - [optional] maximum_terms {int} : the number of returned terms (between 1 and 1000)
+            - [optional] response_position {int} : the position of the scanned term in the returned list (> 0)"""
+        
         # Query part
         scan_clause = urllib.parse.quote(scan_clause)
 
@@ -482,9 +515,12 @@ class Sudoc_SRU(object):
                 maximum_terms, response_position, scan_clause, url)
         
     def generate_query(self, list: list):
-        """Ignore any list element that is not a string or Part_Of_Query.
-        
-        Can be use to add parenthesis."""
+        """Returns a query from multiple parts of query as a string.
+        Takes as arguments :
+            - list {list of strings or Part_Of_Query instances} : all parts of query to merge
+        Any non string or Part_Of_Query instance will be ignored
+        Can be use to add parenthesis to a list of Part_Of_Query."""
+
         output = ""
         for index, query_part in enumerate(list):
             if type(query_part) == str:
@@ -495,11 +531,14 @@ class Sudoc_SRU(object):
         return output
 
     def generate_scan_clause(self, clause: Part_Of_Query):
-        """"""
+        """Returns a scan clause as a string.
+        Takes as arguments :
+            - clause {Part_Of_Query instance} : the Part_Of_Query instance to return as a string
+        Only useful if the scan clause is to be created from a Part_Of_Query instance"""
         return clause.to_string(False)
 
     def to_int(self, val):
-        """Returns None if val can't be a int"""
+        """Returns None if val can't be a int, else return an int"""
         try:
             int(val) # Works with 2000-2023
         except TypeError:
@@ -510,6 +549,10 @@ class Sudoc_SRU(object):
 # ---------- SRU Explain Result ----------
 
 class SRU_Result_Explain(object):
+    """SRU_Result_Explain
+    =======
+    A set of function to handle an explain request response from Sudoc's SRU"""
+
     def __init__(self, status: Status, error: Errors, result: str, url: str):
         self.operation = SRU_Operations.EXPLAIN.value
         self.url = url
@@ -589,6 +632,9 @@ class SRU_Result_Explain(object):
 # ----- SRU Explain sub-classes -----
 
 class SRU_Index_From_Explain(object):
+    """SRU_Index_From_Explain
+    =======
+    A simple class that extracts data from XML objects"""
     def __init__(self, title: str, index_set: str, key: str):
         self.title = title
         self.index_set = index_set
@@ -596,9 +642,13 @@ class SRU_Index_From_Explain(object):
         self.as_string = self.to_string()
     
     def to_string(self):
+        """Returns all this instance property as a string"""
         return f"{self.index_set}.{self.key} : {self.title}"
 
 class SRU_Record_Schema_From_Explain(object):
+    """SRU_Record_Schema_From_Explain
+    =======
+    A simple class that extracts data from XML objects"""
     def __init__(self, title: str, uri: str, sort: str, retrieve: str, key: str):
         self.title = title
         self.uri = uri
@@ -608,10 +658,14 @@ class SRU_Record_Schema_From_Explain(object):
         self.as_string = self.to_string()
     
     def to_string(self):
+        """Returns all this instance property as a string"""
         return f"{self.title} ({self.key}) : sort={self.sort}, "\
                 f"retrieve={self.retrieve}, uri={self.uri}"
 
 class SRU_Sort_Key_From_Explain(object):
+    """SRU_Sort_Key_From_Explain
+    =======
+    A simple class that extracts data from XML objects"""
     def __init__(self, title: str, uri: str, sort: str, retrieve: str, key: str):
         self.title = title
         self.uri = uri
@@ -621,12 +675,17 @@ class SRU_Sort_Key_From_Explain(object):
         self.as_string = self.to_string()
     
     def to_string(self):
+        """Returns all this instance property as a string"""
         return f"{self.title} ({self.key}) : sort={self.sort}, "\
                 f"retrieve={self.retrieve}, uri={self.uri}"
 
 # ---------- SRU Search Retrieve Result ----------
 
 class SRU_Result_Search(object):
+    """SRU_Result_Search
+    =======
+    A set of function to handle a search retrieve request response from Sudoc's SRU"""
+
     closing_tags_fix = "</record></srw:recordData></srw:record>"
 
     def __init__(self, status: Status, error: Errors, result: str, record_schema: str, record_packing: str, maximum_records: int, start_record: int, query: str, url: str):
@@ -764,6 +823,7 @@ class SRU_Result_Search(object):
         return output
 
     def fix_angle_brackets(self):
+        """Returns the result_as_string property deleting double brackets"""
         output = re.sub("<\s*<+", "<", self.result_as_string)
         output = re.sub(">\s*>+", ">", output)
         return output
@@ -771,6 +831,9 @@ class SRU_Result_Search(object):
 # ---------- SRU Scan Result ----------
 
 class SRU_Result_Scan(object):
+    """SRU_Result_Scan
+    =======
+    A set of function to handle a scan request response from Sudoc's SRU"""
     def __init__(self, status: Status, error: Errors, result: str, maximum_terms: int, response_position: int, scan_clause: str, url: str):
         self.operation = SRU_Operations.SCAN.value
         self.url = url
@@ -818,6 +881,9 @@ class SRU_Result_Scan(object):
 
 # ----- SRU Explain sub-classes -----
 class SRU_Scanned_Term(object):
+    """SRU_Scanned_Term
+    =======
+    A simple class that extracts data from XML objects"""
     def __init__(self, term: str, value: str, nb_records: str, extra_term_data: str):
         self.term = term
         self.value = value
@@ -826,5 +892,6 @@ class SRU_Scanned_Term(object):
         self.as_string = self.to_string()
     
     def to_string(self):
+        """Returns all this instance property as a string"""
         return f"{self.term} : {self.nb_records}, "\
                 f"value={self.value}, extra term data={self.extra_term_data}"

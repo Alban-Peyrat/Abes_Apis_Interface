@@ -1,6 +1,6 @@
 # Sudoc_SRU documentation
 
-_[`Sudoc_SRU_tests.py`](../Sudoc_SRU_tests.py) shows some code examples, [test_results/Sudoc_SRU.txt](../test_results/Sudoc_SRU.txt) shows the terminal after executing the file._
+_[`Sudoc_SRU_tests.py`](../Sudoc_SRU_tests.py) shows some code examples, [`test_results/Sudoc_SRU.txt`](../test_results/Sudoc_SRU.txt) shows the terminal after executing the file._
 _[`samples/Sudoc_SRU`](../samples/Sudoc_SRU/) contains XML files showing how returned data looks like._
 
 This documentation is organized as a _How to use_ :
@@ -22,7 +22,7 @@ sru = ssru.Sudoc_SRU()
 This will define constants for requests (the `endpoint` and `version` (only the `1.1` is implemented)) and give you acces to the 5 functions of the class :
 
 * [`explain()`](#request-an-explain-sudoc_sruexplain)
-* [`search_retrieve()`](#request-a-search-retrieve-sudoc_srusearch)
+* [`search()`](#request-a-search-retrieve-sudoc_srusearch)
 * [`explain()`](#request-a-scan-sudoc_sruscan)
 * [`generate_query()`](#generate-a-query-sudoc_srugenerate_query)
 * [`generate_scan_clause()`](#generate-a-scan-clause-sudoc_srugenerate_scan_clause)
@@ -82,17 +82,17 @@ Search retrieve requests take [a mandatory argument and 4 optional arguments](#s
 
 ``` Python
 # Simple
-res = sru.search_retrieve("mti=renard")
+res = sru.search("mti=renard")
 
 # More complex
-res = sru.search_retrieve(sru.generate_query([
+res = sru.search(sru.generate_query([
         ssru.Part_Of_Query(ssru.SRU_Indexes.AUT, ssru.SRU_Relations.EQUALS, "renard alice"),
         ssru.Part_Of_Query(ssru.SRU_Indexes.NOTE_DE_THESE, ssru.SRU_Relations.EQUALS, "bordeaux 20*")]),
         record_schema="isni-b",
         record_packing="xml")
 
 # With every parameters
-res = sru.search_retrieve(sru.generate_query([
+res = sru.search(sru.generate_query([
         "(",
         ssru.Part_Of_Query(ssru.SRU_Indexes.MTI, ssru.SRU_Relations.EQUALS, "renard"),
         ssru.Part_Of_Query(ssru.SRU_Indexes.MTI, ssru.SRU_Relations.EQUALS, "poisson", bool_operator=ssru.SRU_Boolean_Operators.OR),
