@@ -24,8 +24,6 @@ Attention, une validation de l'ISBN est exécutée avant d'appeler de webservice
 
 # [Sudoc_SRU](./Sudoc_SRU.py)
 
-_En cours de codage [septembre 2023]_
-
 A set of function to request [Sudoc's SRU service](https://abes.fr/reseau-sudoc/reutiliser-les-donnees-sudoc/service-sru/) ([documentation](https://abes.fr/wp-content/uploads/2023/05/guide-utilisation-service-sru-catalogue-sudoc.pdf)).
 All 3 operations are handled (`explain`, `searchRetrieve` and `scan`).
 See [`doc/SRU_Sudoc.md` for the documentation](./doc/Sudoc_SRU.md).
