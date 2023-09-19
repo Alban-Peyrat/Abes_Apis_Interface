@@ -675,7 +675,7 @@ class SRU_Result_Search(object):
         # Original query parameters
         self.record_schema = record_schema
         self.record_packing = record_packing
-        self.maximum_record = maximum_records
+        self.maximum_records = maximum_records
         self.start_record = start_record
         self.query = query
         
@@ -792,6 +792,18 @@ class SRU_Result_Scan(object):
 
         # Calculated infos
         self.terms = self.get_terms()
+
+    def get_result(self):
+            """Return the result as an ET Element."""
+            return self.result
+
+    def get_status(self):
+        """Return the init status as a string."""
+        return self.status
+
+    def get_error_msg(self):
+        """Return the error message."""
+        return str(self.error)
 
     def get_terms(self):
         """Returns a list of all terms as SRU_Scanned_Term"""
