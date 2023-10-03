@@ -19,8 +19,11 @@ On init take a bib identifier in argument (ISBN or ISSN)
 
 # [Abes_isbn2ppn](./Abes_isbn2ppn.py)
 
-Interroge le service de transformation d'un ISBN en PPN de l'Abes.
-Attention, une validation de l'ISBN est exécutée avant d'appeler de webservice.
+A set of functions to request [Abes' isbn2ppn webservice](https://documentation.abes.fr/sudoc/manuels/administration/aidewebservices/index.html#isbn2ppn).
+A validity check of the ISBN can be performed before the request.
+See [`doc/Abes_isbn2ppn.md` for the documentation](./doc/Abes_isbn2ppn.md).
+
+_[`Abes_isbn2ppn_test.py`](./Abes_isbn2ppn_test.py) shows some code examples, [`test_results/Abes_isbn2ppn.txt`](./test_results/Abes_isbn2ppn.txt) shows the terminal after executing the file._
 
 # [Sudoc_SRU](./Sudoc_SRU.py)
 

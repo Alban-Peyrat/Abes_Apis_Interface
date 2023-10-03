@@ -1,0 +1,65 @@
+
+
+--------------- Invalid ISBN with check ---------------
+LoveColoredMasterSpark :: Abes_isbn2ppn ISBN Validity :: ISBN is invalid
+Input ISBN : LoveColoredMasterSpark
+Status : Error
+Error message : ISBN is invalid
+HTTP Status code : 0
+Used ISBN :
+URL : None
+Results : ([], [])
+
+
+--------------- Invalid ISBN without check ---------------
+LoveColoredMasterSpark :: Abes_isbn2ppn Request :: HTTP Status: 404 || URL: https://www.sudoc.fr/services/isbn2ppn/LoveColoredMasterSpark || Response: {"sudoc":{"error":"Aucune notice n'est 
+associée à cette valeur LoveColoredMasterSpark"}}
+Input ISBN : LoveColoredMasterSpark
+Status : Error
+Error message : Unknown ISBN or unavailable service
+HTTP Status code : 404
+Used ISBN : LoveColoredMasterSpark
+URL : https://www.sudoc.fr/services/isbn2ppn/LoveColoredMasterSpark
+Results : ([], [])
+
+
+--------------- ISBN with 0 PPN match ---------------
+2212064004 :: Abes_isbn2ppn Request :: HTTP Status: 404 || URL: https://www.sudoc.fr/services/isbn2ppn/2212064004 || Response: {"sudoc":{"error":"Aucune notice n'est associée à cette valeur 
+2212064004"}}
+Input ISBN : 2212064004
+Status : Error
+Error message : Unknown ISBN or unavailable service
+HTTP Status code : 404
+Used ISBN : 2212064004
+URL : https://www.sudoc.fr/services/isbn2ppn/2212064004
+Results : ([], [])
+
+
+--------------- ISBN with 1 PPN match ---------------
+Input ISBN : 9782862764719
+Status : Success
+Error message : No error
+HTTP Status code : 0
+Used ISBN : 9782862764719
+URL : https://www.sudoc.fr/services/isbn2ppn/9782862764719
+Results : ['142427039']
+
+
+--------------- ISBN with multiple PPN match (only with holdings) ---------------
+Input ISBN : 2110860723
+Status : Success
+Error message : No error
+HTTP Status code : 0
+Used ISBN : 2110860723
+URL : https://www.sudoc.fr/services/isbn2ppn/2110860723
+Results : ['002385716', '002786095']
+
+
+--------------- ISBN with multiple PPN match (some without holdings) ---------------
+Input ISBN : 2-07-037026-7
+Status : Success
+Error message : No error
+HTTP Status code : 0
+Used ISBN : 2070370267
+URL : https://www.sudoc.fr/services/isbn2ppn/2070370267
+Results : (['00021650X', '007148747', '008518912'], ['003640507', '060933356', '075250543'])
