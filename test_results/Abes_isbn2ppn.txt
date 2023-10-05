@@ -12,8 +12,7 @@ Results : ([], [])
 
 
 --------------- Invalid ISBN without check ---------------
-LoveColoredMasterSpark :: Abes_isbn2ppn Request :: HTTP Status: 404 || URL: https://www.sudoc.fr/services/isbn2ppn/LoveColoredMasterSpark || Response: {"sudoc":{"error":"Aucune notice n'est 
-associée à cette valeur LoveColoredMasterSpark"}}
+LoveColoredMasterSpark :: Abes_isbn2ppn Request :: HTTP Status: 404 || URL: https://www.sudoc.fr/services/isbn2ppn/LoveColoredMasterSpark || Response: {"sudoc":{"error":"Aucune notice n'est associée à cette valeur LoveColoredMasterSpark"}}
 Input ISBN : LoveColoredMasterSpark
 Status : Error
 Error message : Unknown ISBN or unavailable service
@@ -24,14 +23,24 @@ Results : ([], [])
 
 
 --------------- ISBN with 0 PPN match ---------------
-2212064004 :: Abes_isbn2ppn Request :: HTTP Status: 404 || URL: https://www.sudoc.fr/services/isbn2ppn/2212064004 || Response: {"sudoc":{"error":"Aucune notice n'est associée à cette valeur 
-2212064004"}}
+2212064004 :: Abes_isbn2ppn Request :: HTTP Status: 404 || URL: https://www.sudoc.fr/services/isbn2ppn/2212064004 || Response: {"sudoc":{"error":"Aucune notice n'est associée à cette valeur 2212064004"}}
 Input ISBN : 2212064004
 Status : Error
 Error message : Unknown ISBN or unavailable service
 HTTP Status code : 404
 Used ISBN : 2212064004
 URL : https://www.sudoc.fr/services/isbn2ppn/2212064004
+Results : ([], [])
+
+
+--------------- Incorrect ISBN with 0 PPN match ---------------
+290738077X :: Abes_isbn2ppn Request :: HTTP Status: 404 || URL: https://www.sudoc.fr/services/isbn2ppn/290738077X || Response: {"sudoc":{"error":"Aucune notice n'est associée à cette valeur 290738077X"}}
+Input ISBN : 290738077X
+Status : Error
+Error message : Unknown ISBN or unavailable service
+HTTP Status code : 404
+Used ISBN : 290738077X
+URL : https://www.sudoc.fr/services/isbn2ppn/290738077X
 Results : ([], [])
 
 

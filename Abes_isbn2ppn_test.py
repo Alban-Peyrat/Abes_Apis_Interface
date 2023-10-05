@@ -35,6 +35,17 @@ print("Used ISBN :", res.get_isbn_used())
 print("URL :", res.url)
 print("Results :", str(res.get_results()))
 
+# Incorrect ISBN with 0 PPN match
+print("\n\n--------------- Incorrect ISBN with 0 PPN match ---------------")
+res = i2p.get_matching_ppn("290738077X")
+print("Input ISBN :", res.input_isbn)
+print("Status :", res.status)
+print("Error message :", res.error_msg)
+print("HTTP Status code :", str(res.HTTP_status_code))
+print("Used ISBN :", res.get_isbn_used())
+print("URL :", res.url)
+print("Results :", str(res.get_results()))
+
 # ISBN with 1 PPN match
 # --- MERGES RESULTS ---
 print("\n\n--------------- ISBN with 1 PPN match ---------------")
