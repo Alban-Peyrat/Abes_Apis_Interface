@@ -37,7 +37,7 @@ print("Results :", str(res.get_results()))
 
 # Incorrect ISBN with 0 PPN match
 print("\n\n--------------- Incorrect ISBN with 0 PPN match ---------------")
-res = i2p.get_matching_ppn("290738077X")
+res = i2p.get_matching_ppn("2.907380.77.X", check_isbn_validity=False)
 print("Input ISBN :", res.input_isbn)
 print("Status :", res.status)
 print("Error message :", res.error_msg)

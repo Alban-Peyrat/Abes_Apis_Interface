@@ -35,7 +35,7 @@ res = i2p.get_matching_ppn("LoveColoredMasterSpark", check_isbn_validity=False)
 res = i2p.get_matching_ppn(2212064004)
 
 # Incorrect ISBN with 0 PPN match
-res = i2p.get_matching_ppn("290738077X")
+res = i2p.get_matching_ppn("2.907380.77.X", check_isbn_validity=False)
 
 # ISBN with 1 PPN match
 res = i2p.get_matching_ppn("9782862764719")
