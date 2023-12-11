@@ -1,0 +1,155 @@
+
+
+--------------- Invalid ISBN with check ---------------
+LoveColoredMasterSpark :: Abes_id2ppn ISBN Validity :: ISBN is invalid
+Input ISBN : LoveColoredMasterSpark
+Status : Error
+Error message : ISBN is invalid
+HTTP Status code : 0
+Used ISBN :
+URL : None
+Results : ([], [])
+
+
+--------------- Invalid ISBN without check ---------------
+LoveColoredMasterSpark :: Abes_id2ppn Request :: Unknown ISBN or unavailable service
+Input ISBN : LoveColoredMasterSpark
+Status : Error
+Error message : Unknown ISBN or unavailable service
+HTTP Status code : 404
+Used ISBN : LoveColoredMasterSpark
+URL : https://www.sudoc.fr/services/isbn2ppn/LoveColoredMasterSpark
+Results : ([], [])
+
+
+--------------- ISBN with 0 PPN match ---------------
+2212064004 :: Abes_id2ppn Request :: Unknown ISBN or unavailable service
+Input ISBN : 2212064004
+Status : Error
+Error message : Unknown ISBN or unavailable service
+HTTP Status code : 404
+Used ISBN : 2212064004
+URL : https://www.sudoc.fr/services/isbn2ppn/2212064004
+Results : ([], [])
+
+
+--------------- Incorrect ISBN with 0 PPN match ---------------
+2.907380.77.X :: Abes_id2ppn Request :: Unknown ISBN or unavailable service
+Input ISBN : 2.907380.77.X
+Status : Error
+Error message : Unknown ISBN or unavailable service
+HTTP Status code : 404
+Used ISBN : 2.907380.77.X
+URL : https://www.sudoc.fr/services/isbn2ppn/2.907380.77.X
+Results : ([], [])
+
+
+--------------- ISBN with 1 PPN match ---------------
+Input ISBN : 9782862764719
+Status : Success
+Error message : No error
+HTTP Status code : 0
+Used ISBN : 9782862764719
+URL : https://www.sudoc.fr/services/isbn2ppn/9782862764719
+Results : ['142427039']
+
+
+--------------- ISBN with multiple PPN match (only with holdings) ---------------
+Input ISBN : 2110860723
+Status : Success
+Error message : No error
+HTTP Status code : 0
+Used ISBN : 2110860723
+URL : https://www.sudoc.fr/services/isbn2ppn/2110860723
+Results : ['002385716', '002786095']
+
+
+--------------- ISBN with multiple PPN match (some without holdings) ---------------
+Input ISBN : 2-07-037026-7
+Status : Success
+Error message : No error
+HTTP Status code : 0
+Used ISBN : 2070370267
+URL : https://www.sudoc.fr/services/isbn2ppn/2070370267
+Results : (['00021650X', '007148747', '008518912'], ['003640507', '060933356', '075250543'])
+
+
+--------------- ISSN with hyphen ---------------
+Input ISSN : 0012-5377
+Status : Success
+Error message : No error
+HTTP Status code : 0
+URL : https://www.sudoc.fr/services/issn2ppn/0012-5377
+Results : ['038698986']
+
+
+--------------- ISSN without hyphen ---------------
+Input ISSN : 07685785
+Status : Success
+Error message : No error
+HTTP Status code : 0
+URL : https://www.sudoc.fr/services/issn2ppn/07685785
+Results : ['048883220']
+
+
+--------------- EAN ---------------
+Input EAN : 5060314994827
+Status : Success
+Error message : No error
+HTTP Status code : 0
+URL : https://www.sudoc.fr/services/ean2ppn/5060314994827
+Results : ['262555220']
+
+
+--------------- French Natonal Library ID (frBN) ---------------
+Input FRBN : 472983100000004
+Status : Success
+Error message : No error
+HTTP Status code : 0
+URL : https://www.sudoc.fr/services/frbn2ppn/472983100000004
+Results : ['271369752']
+
+
+--------------- Worldcat ID (OCN) ---------------
+Input OCN : 882104914
+Status : Success
+Error message : No error
+HTTP Status code : 0
+URL : https://www.sudoc.fr/services/ocn2ppn/882104914
+Results : ['184489121']
+
+
+--------------- German national Library ID (DNB) ---------------
+Input DNB : 1009232339
+Status : Success
+Error message : No error
+HTTP Status code : 0
+URL : https://www.sudoc.fr/services/dnb2ppn/1009232339
+Results : ['155961748', '196397383']
+
+
+--------------- UCATB ID ---------------
+Input UCATB : 40394329
+Status : Success
+Error message : No error
+HTTP Status code : 0
+URL : https://www.sudoc.fr/services/ucatb2ppn/40394329
+Results : ['234085827']
+
+
+--------------- Cairn ID ---------------
+Input FRCAIRNINFO : PUG_CHABO_2003_01
+Status : Success
+Error message : No error
+HTTP Status code : 0
+URL : https://www.sudoc.fr/services/frcairninfo2ppn/PUG_CHABO_2003_01
+Results : ['271508817']
+
+
+--------------- National Licence Sprigner ID ---------------
+Input SpringerLN : 978-3-540-41727-9
+Status : Success
+Error message : No error
+HTTP Status code : 0
+URL : https://www.sudoc.fr/services/springerln2ppn/978-3-540-41727-9
+Results : ['155220454']
