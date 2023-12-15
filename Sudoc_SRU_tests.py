@@ -63,7 +63,23 @@ print("URL :", res.url)
 print("Query :", res.query)
 print("Record Schema :", res.record_schema)
 print("Record Packing :", res.record_packing)
-print("Maximum Records :", res.maximum_record)
+print("Maximum Records :", res.maximum_records)
+print("Start Record :", res.start_record)
+print("Records id : ", str(res.records_id))
+
+
+res = None
+print("\n\n--------------- Search Retrieve srw;query fix ---------------")
+res = sru.search(sru.generate_query(["mti=marc mimram le faire a repenser les entretiens de chaillot du 8 avril 2002 and aut=mimram marc les entretiens de chaillot and edi=cite de l architecture du patrimoine and apu>=2006 and apu<=2006 and tdo=v"]),
+        record_schema=ssru.SRU_Record_Schemas.UNIMARC,
+        record_packing=ssru.SRU_Record_Packings.XML,
+        maximum_records="23",
+        start_record=None)
+print("URL :", res.url)
+print("Query :", res.query)
+print("Record Schema :", res.record_schema)
+print("Record Packing :", res.record_packing)
+print("Maximum Records :", res.maximum_records)
 print("Start Record :", res.start_record)
 print("Records id : ", str(res.records_id))
 
@@ -74,16 +90,17 @@ res = sru.search(sru.generate_query([
         ssru.Part_Of_Query(ssru.SRU_Indexes.MTI, ssru.SRU_Relations.EQUALS, "renard"),
         ssru.Part_Of_Query(ssru.SRU_Indexes.MTI, ssru.SRU_Relations.EQUALS, "poisson", bool_operator=ssru.SRU_Boolean_Operators.OR),
         ")",
-        " and APU > 2020"]),
-        record_schema=ssru.SRU_Record_Schemas.PICA_XML,
-        record_packing=ssru.SRU_Record_Packings.STRING,
+        " and APU > 2020",
+        ssru.Part_Of_Query(ssru.SRU_Filters.APU, ssru.SRU_Relations.INFERIOR_OR_EQUAL, "2020")]),
+        record_schema=ssru.SRU_Record_Schemas.UNIMARC,
+        record_packing=ssru.SRU_Record_Packings.XML,
         maximum_records="23",
         start_record=None)
 print("URL :", res.url)
 print("Query :", res.query)
 print("Record Schema :", res.record_schema)
 print("Record Packing :", res.record_packing)
-print("Maximum Records :", res.maximum_record)
+print("Maximum Records :", res.maximum_records)
 print("Start Record :", res.start_record)
 print("Records id : ", str(res.records_id))
 
