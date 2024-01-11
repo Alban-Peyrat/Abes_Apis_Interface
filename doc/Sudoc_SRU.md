@@ -23,7 +23,7 @@ This will define constants for requests (the `endpoint` and `version` (only the 
 
 * [`explain()`](#request-an-explain-sudoc_sruexplain)
 * [`search()`](#request-a-search-retrieve-sudoc_srusearch)
-* [`explain()`](#request-a-scan-sudoc_sruscan)
+* [`scan()`](#request-a-scan-sudoc_sruscan)
 * [`generate_query()`](#generate-a-query-sudoc_srugenerate_query)
 * [`generate_scan_clause()`](#generate-a-scan-clause-sudoc_srugenerate_scan_clause)
 
