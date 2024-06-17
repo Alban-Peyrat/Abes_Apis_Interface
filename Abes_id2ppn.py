@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 import json
 import pyisbn
 import re
+from typing import Tuple, List
 
 # --------------- Enums ---------------
 
@@ -47,7 +48,7 @@ class Webservice(Enum):
 # --------------- Function definition ---------------
 
 # Adapted from https://www.oreilly.com/library/view/regular-expressions-cookbook/9780596802837/ch04s13.html
-def validate_isbn(isbn):
+def validate_isbn(isbn:str) -> Tuple[Isbn_Validity, str, str]:
     """Return if the ISBN is valid.
     
     Argument : ISBN
@@ -59,7 +60,7 @@ def validate_isbn(isbn):
     # `regex` checks for ISBN-10 or ISBN-13 format
     regex = re.compile("^(?:ISBN(?:-1[03])?:? )?(?=[-0-9 ]{17}$|[-0-9X ]{13}$|[0-9X]{10}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?(?:[0-9]+[- ]?){2}[0-9X]$")
 
-    if regex.search(isbn):
+    if regex.search(str(isbn)):
         # Remove non ISBN digits
         normalised = re.sub("[^0-9X]", "", str(isbn))
         # Leave if it's an ISBN 13 with a X as a checksum
@@ -75,7 +76,7 @@ def validate_isbn(isbn):
         return Isbn_Validity.INVALID_ISBN, isbn, ""
 
 
-def compute_isbn_10_check_digit(chars):
+def compute_isbn_10_check_digit(chars:List[str]) -> str:
     """DEPRACTED, use pyisbn library directly
     
     Returns the check as a string for an ISBN 10.
@@ -84,7 +85,7 @@ def compute_isbn_10_check_digit(chars):
     """
     return pyisbn.Isbn("".join(chars) + "0").calculate_checksum()
 
-def compute_isbn_13_check_digit(chars):
+def compute_isbn_13_check_digit(chars:List[str]) -> str:
     """DEPRACTED, use pyisbn library directly
     
     Returns the check as a string for an ISBN 13.
